@@ -35,18 +35,13 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="space-y-4">
-            {isRegister && (
-              <div className="space-y-1">
-                <Label htmlFor="name">昵称</Label>
-                <Input id="name" name="name" placeholder="你的名字" required />
-              </div>
-            )}
             <div className="space-y-1">
-              <Label htmlFor="account">手机号 / 用户名</Label>
+              <Label htmlFor="account">手机号</Label>
               <Input
                 id="account"
                 name="account"
-                placeholder="输入手机号或用户名"
+                type="tel"
+                placeholder="输入手机号"
                 required
               />
             </div>

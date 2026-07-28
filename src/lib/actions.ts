@@ -7,10 +7,9 @@ import { signIn } from "./auth";
 export async function register(formData: FormData) {
   const account = formData.get("account") as string;
   const password = formData.get("password") as string;
-  const name = formData.get("name") as string;
 
-  if (!account || !password || !name) {
-    return { error: "请填写所有必填字段" };
+  if (!account || !password) {
+    return { error: "请填写手机号和密码" };
   }
 
   if (password.length < 6) {
@@ -22,12 +21,12 @@ export async function register(formData: FormData) {
   });
 
   if (existing) {
-    return { error: "该账号已被注册" };
+    return { error: "该手机号已被注册" };
   }
 
   const hashed = await hash(password, 10);
   await prisma.user.create({
-    data: { account, password: hashed, name },
+    data: { account, password: hashed, name: account },
   });
 
   await signIn("credentials", { account, password, redirectTo: "/" });
