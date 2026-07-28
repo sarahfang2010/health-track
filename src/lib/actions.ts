@@ -29,7 +29,14 @@ export async function register(formData: FormData) {
     data: { account, password: hashed, name: account },
   });
 
-  await signIn("credentials", { account, password, redirectTo: "/" });
+  try {
+    await signIn("credentials", { account, password, redirectTo: "/" });
+  } catch (err) {
+    if ((err as Error).message?.includes("NEXT_REDIRECT")) {
+      throw err;
+    }
+    return { error: "注册失败，请稍后再试" };
+  }
 }
 
 export async function login(formData: FormData) {
@@ -42,7 +49,10 @@ export async function login(formData: FormData) {
 
   try {
     await signIn("credentials", { account, password, redirectTo: "/" });
-  } catch {
+  } catch (err) {
+    if ((err as Error).message?.includes("NEXT_REDIRECT")) {
+      throw err;
+    }
     return { error: "账号或密码错误" };
   }
 }
