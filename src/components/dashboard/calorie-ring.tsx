@@ -21,39 +21,39 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
       {/* Layered rings */}
       <div className="relative w-36 h-36">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-          {/* BMR base ring (outermost, light gray) */}
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" strokeWidth="10" />
+          {/* BMR base ring (outermost, soft stone) */}
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#d1d5d0" strokeWidth="10" />
 
-          {/* Exercise burn ring (middle, orange) */}
+          {/* Exercise burn ring (middle, warm amber) */}
           {burned > 0 && (
             <circle
               cx="60" cy="60" r="50"
               fill="none"
-              stroke="#f97316"
+              stroke="#c9956b"
               strokeWidth="10"
               strokeLinecap="round"
               strokeDasharray={`${exercisePct * circum} ${circum}`}
               strokeDashoffset={-(burnPct - exercisePct) * circum}
-              opacity={0.7}
+              opacity={0.8}
             />
           )}
 
-          {/* Total burn ring (inner show-through, stronger orange) */}
+          {/* Total burn ring (inner, lighter amber) */}
           <circle
             cx="60" cy="60" r="42"
             fill="none"
-            stroke="#fb923c"
+            stroke="#dbb894"
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={`${burnPct * circum} ${circum}`}
             opacity={0.5}
           />
 
-          {/* Intake ring (innermost, green if under target, red if over) */}
+          {/* Intake ring (innermost, muted sage) */}
           <circle
             cx="60" cy="60" r="34"
             fill="none"
-            stroke={consumed > target ? "#ef4444" : "#22c55e"}
+            stroke={consumed > target ? "#c4706e" : "#5f8b7a"}
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={`${intakePct * circum} ${circum}`}
@@ -70,15 +70,15 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
       {/* Legend */}
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3 text-xs">
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#5f8b7a] inline-block" />
           摄入 {consumed}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#f97316] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#c9956b] inline-block" />
           运动 {burned}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#e5e7eb] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#d1d5d0] inline-block" />
           基础 {bmr}
         </span>
       </div>
