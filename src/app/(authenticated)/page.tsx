@@ -4,6 +4,7 @@ import { CalorieRing } from "@/components/dashboard/calorie-ring";
 import { AdviceCard } from "@/components/dashboard/advice-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { GoalSelector } from "@/components/dashboard/goal-selector";
+import { MacroBars } from "@/components/dashboard/macro-bars";
 import { getRecommendations } from "@/services/recommendationEngine";
 import { calculateDailySummary } from "@/services/summaryCalculator";
 import Link from "next/link";
@@ -34,6 +35,9 @@ export default async function DashboardPage() {
 
   const todayCalories = summary?.totalCaloriesIn || 0;
   const exerciseCalories = summary?.totalCaloriesOut || 0;
+  const todayProtein = summary?.totalProtein || 0;
+  const todayFat = summary?.totalFat || 0;
+  const todayCarbs = summary?.totalCarbs || 0;
 
   // BMR + TDEE
   let tdee = 2000;
@@ -72,6 +76,13 @@ export default async function DashboardPage() {
         <div className="text-center">
           <CalorieRing consumed={todayCalories} burned={exerciseCalories} bmr={bmr} target={targetCal} />
         </div>
+
+        <MacroBars
+          protein={todayProtein}
+          carbs={todayCarbs}
+          fat={todayFat}
+          targetCal={targetCal}
+        />
 
         <QuickActions />
 
