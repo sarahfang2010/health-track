@@ -37,12 +37,17 @@ export function GoalSelector({ currentGoal, showOnboarding }: Props) {
     if (saving) return;
     setSaving(true);
     setGoal(value);
-    await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ goal: value }),
-    });
-    setSaving(false);
+    try {
+      await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal: value }),
+      });
+    } catch {
+      // ignore error, keep local state
+    } finally {
+      setSaving(false);
+    }
     setDialogOpen(false);
     router.refresh();
   }
