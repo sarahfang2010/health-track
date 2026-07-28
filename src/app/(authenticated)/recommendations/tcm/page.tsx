@@ -61,8 +61,8 @@ export default function TCMPage() {
   return (
     <>
       <div className="mb-4">
-        <Link href="/recommendations" className="text-sm text-primary">
-          ← 返回建议
+        <Link href="/" className="text-sm text-primary">
+          ← 返回首页
         </Link>
       </div>
       <h1 className="text-xl font-semibold mb-2">🌿 中医食补养生</h1>
