@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  account   String   @unique
+  password  String
+  age       Int?
+  gender    String?
+  height    Float?
+  weight    Float?
+  goal      String   @default("maintain")
+  createdAt DateTime @default(now())
+
+  healthReports HealthReport[]
+  foodEntries   FoodEntry[]
+  exerciseEntries ExerciseEntry[]
+  dailySummaries DailySummary[]
+}
+
+model HealthReport {
+  id                    String   @id @default(uuid())
+  userId                String
+  reportDate            DateTime @default(now())
+  bloodSugar            Float?
+  bloodPressureSystolic  Int?
+  bloodPressureDiastolic Int?
+  totalCholesterol      Float?
+  hdl                   Float?
+  ldl                   Float?
+  triglycerides         Float?
+  uricAcid              Float?
+  flags                 String   @default("")
+  reportImageUrl        String?
+  notes                 String?
+  createdAt             DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FoodEntry {
+  id         String   @id @default(uuid())
+  userId     String
+  mealType   String
+  foodName   String
+  portion    String?
+  calories   Float
+  protein    Float
+  fat        Float
+  carbs      Float
+  fiber      Float?
+  sugar      Float?
+  imageUrl   String?
+  source     String
+  consumedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ExerciseEntry {
+  id              String   @id @default(uuid())
+  userId          String
+  activityType    String
+  durationMinutes Float
+  caloriesBurned  Float
+  steps           Int?
+  source          String   @default("manual")
+  date            DateTime @default(now())
+  notes           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailySummary {
+  id              String   @id @default(uuid())
+  userId          String
+  date            DateTime
+  totalCaloriesIn  Float    @default(0)
+  totalCaloriesOut Float    @default(0)
+  totalProtein    Float    @default(0)
+  totalFat        Float    @default(0)
+  totalCarbs      Float    @default(0)
+  calorieBalance  Float    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FoodDatabase {
+  id       String @id @default(uuid())
+  name     String
+  category String
+  calories Float
+  protein  Float
+  fat      Float
+  carbs    Float
+  fiber    Float  @default(0)
+  sugar    Float  @default(0)
+}
