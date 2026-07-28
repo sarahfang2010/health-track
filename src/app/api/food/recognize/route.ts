@@ -15,6 +15,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "请上传图片" }, { status: 400 });
   }
 
+  if (!file.type.startsWith("image/")) {
+    return NextResponse.json({ error: "仅支持图片文件" }, { status: 400 });
+  }
+
+  if (file.size >= 10 * 1024 * 1024) {
+    return NextResponse.json({ error: "图片大小不能超过 10MB" }, { status: 400 });
+  }
+
   // Save file
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);

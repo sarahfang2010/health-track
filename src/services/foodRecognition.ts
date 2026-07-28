@@ -19,5 +19,15 @@ export async function recognizeFood(): Promise<Candidate[]> {
     take: 5,
     skip,
   });
-  return foods;
+  return foods.map((food) => ({
+    id: food.id,
+    name: food.name,
+    category: food.category,
+    calories: food.calories,
+    protein: food.protein,
+    fat: food.fat,
+    carbs: food.carbs,
+    fiber: food.fiber,
+    sugar: food.sugar,
+  }));
 }
