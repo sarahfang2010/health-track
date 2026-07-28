@@ -34,8 +34,9 @@ export async function POST(req: NextRequest) {
   await fs.writeFile(path.join(uploadDir, filename), buffer);
   const imageUrl = `/uploads/${filename}`;
 
-  // Simulated recognition — returns candidates from food database
-  const candidates = await recognizeFood();
+  // AI recognition — falls back to random if AI fails
+  const fullPath = path.join(uploadDir, filename);
+  const candidates = await recognizeFood(fullPath);
 
   return NextResponse.json({ imageUrl, candidates });
 }
