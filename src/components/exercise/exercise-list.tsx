@@ -1,3 +1,5 @@
+"use client";
+
 const activityIcons: Record<string, string> = {
   running: "🏃",
   walking: "🚶",
@@ -31,9 +33,11 @@ interface ExerciseEntry {
 
 interface Props {
   entries: ExerciseEntry[];
+  onEdit?: (entry: ExerciseEntry) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function ExerciseList({ entries }: Props) {
+export function ExerciseList({ entries, onEdit, onDelete }: Props) {
   if (entries.length === 0) {
     return (
       <p className="text-center text-muted-foreground py-8">
@@ -48,7 +52,7 @@ export function ExerciseList({ entries }: Props) {
       {entries.map((entry) => {
         totalCal += entry.caloriesBurned;
         return (
-          <div key={entry.id} className="flex items-center gap-3 p-3 border rounded-lg">
+          <div key={entry.id} className="flex items-center gap-3 p-3 border rounded-lg group">
             <span className="text-2xl">{activityIcons[entry.activityType] || "💪"}</span>
             <div className="flex-1">
               <div className="font-medium">
@@ -60,8 +64,30 @@ export function ExerciseList({ entries }: Props) {
                 {entry.notes ? ` · ${entry.notes}` : ""}
               </div>
             </div>
-            <div className="text-right font-semibold">
-              {entry.caloriesBurned} kcal
+            <div className="text-right">
+              <div className="font-semibold">{entry.caloriesBurned} kcal</div>
+              {(onEdit || onDelete) && (
+                <div className="flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onEdit && (
+                    <button
+                      type="button"
+                      className="text-xs text-primary hover:underline"
+                      onClick={() => onEdit(entry)}
+                    >
+                      编辑
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      className="text-xs text-destructive hover:underline"
+                      onClick={() => onDelete(entry.id)}
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         );

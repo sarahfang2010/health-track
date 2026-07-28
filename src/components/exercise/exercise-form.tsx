@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,28 +16,54 @@ const activities = [
   { value: "other", label: "💪 其他" },
 ];
 
-interface Props {
-  onSaved: () => void;
+interface ExerciseEntry {
+  id: string;
+  activityType: string;
+  durationMinutes: number;
+  caloriesBurned: number;
+  steps: number | null;
+  notes: string | null;
 }
 
-export function ExerciseForm({ onSaved }: Props) {
-  const [activityType, setActivityType] = useState("walking");
-  const [duration, setDuration] = useState(30);
-  const [steps, setSteps] = useState("");
-  const [notes, setNotes] = useState("");
+interface Props {
+  onSaved: () => void;
+  onCancel?: () => void;
+  editEntry?: ExerciseEntry | null;
+}
+
+export function ExerciseForm({ onSaved, onCancel, editEntry }: Props) {
+  const [activityType, setActivityType] = useState(editEntry?.activityType || "walking");
+  const [duration, setDuration] = useState(editEntry?.durationMinutes || 30);
+  const [steps, setSteps] = useState(editEntry?.steps?.toString() || "");
+  const [notes, setNotes] = useState(editEntry?.notes || "");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (editEntry) {
+      setActivityType(editEntry.activityType);
+      setDuration(editEntry.durationMinutes);
+      setSteps(editEntry.steps?.toString() || "");
+      setNotes(editEntry.notes || "");
+    }
+  }, [editEntry]);
+
+  const isEditing = !!editEntry;
 
   async function handleSave() {
     setSaving(true);
+    const method = isEditing ? "PUT" : "POST";
+    const body: Record<string, unknown> = {
+      activityType,
+      durationMinutes: duration,
+      steps: steps || null,
+      notes: notes || null,
+    };
+    if (isEditing) body.id = editEntry!.id;
+
     await fetch("/api/exercise", {
-      method: "POST",
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        activityType,
-        durationMinutes: duration,
-        steps: steps || null,
-        notes: notes || null,
-      }),
+      body: JSON.stringify(body),
     });
     setSaving(false);
     onSaved();
@@ -46,7 +72,7 @@ export function ExerciseForm({ onSaved }: Props) {
   return (
     <div className="space-y-4 p-4 border rounded-lg">
       <div className="text-sm font-medium text-muted-foreground">
-        ✏️ 记录运动
+        {isEditing ? "✏️ 编辑运动" : "✏️ 记录运动"}
       </div>
       <div className="space-y-1">
         <Label>运动类型</Label>
@@ -57,8 +83,8 @@ export function ExerciseForm({ onSaved }: Props) {
               type="button"
               className={`p-2 rounded-lg border text-xs text-center transition-colors ${
                 activityType === a.value
-                  ? "border-primary bg-primary/10 font-medium"
-                  : "hover:bg-muted"
+                  ? "border-primary border-2 bg-primary/10 font-bold"
+                  : "border hover:bg-muted"
               }`}
               onClick={() => setActivityType(a.value)}
             >
@@ -92,9 +118,16 @@ export function ExerciseForm({ onSaved }: Props) {
           placeholder="如: 户外慢跑"
         />
       </div>
-      <Button onClick={handleSave} disabled={saving} className="w-full">
-        {saving ? "保存中..." : "保存记录"}
-      </Button>
+      <div className={`flex gap-2 ${onCancel ? "" : ""}`}>
+        {onCancel && (
+          <Button variant="outline" onClick={onCancel} className="flex-1">
+            取消
+          </Button>
+        )}
+        <Button onClick={handleSave} disabled={saving} className="flex-1">
+          {saving ? "保存中..." : isEditing ? "更新记录" : "保存记录"}
+        </Button>
+      </div>
     </div>
   );
 }

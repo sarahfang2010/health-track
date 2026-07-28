@@ -68,3 +68,55 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(entry, { status: 201 });
 }
+
+export async function PUT(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { id, activityType, durationMinutes, steps, notes } = body;
+
+  const existing = await prisma.exerciseEntry.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  const rate = calorieRates[activityType] || 4.0;
+  const caloriesBurned = Math.round(rate * parseFloat(durationMinutes));
+
+  const entry = await prisma.exerciseEntry.update({
+    where: { id },
+    data: {
+      activityType: activityType || existing.activityType,
+      durationMinutes: parseFloat(durationMinutes),
+      caloriesBurned,
+      steps: steps ? parseInt(steps) : null,
+      notes: notes || null,
+    },
+  });
+
+  return NextResponse.json(entry);
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "缺少ID" }, { status: 400 });
+  }
+
+  const existing = await prisma.exerciseEntry.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  await prisma.exerciseEntry.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}
