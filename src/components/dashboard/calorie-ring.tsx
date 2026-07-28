@@ -18,8 +18,7 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
     <div className="flex flex-col items-center">
       <div className="relative w-36 h-36">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-          {/* BMR - outermost ring, soft blue */}
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#c4d9e8" strokeWidth="10" />
+          {/* BMR - outermost ring, soft blue, no background */}
           <circle
             cx="60" cy="60" r="50"
             fill="none"
@@ -29,8 +28,7 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
             strokeDasharray={`${bmrPct * circum} ${circum}`}
           />
 
-          {/* Intake - middle ring, soft coral */}
-          <circle cx="60" cy="60" r="42" fill="none" stroke="#f5d2cd" strokeWidth="8" />
+          {/* Intake - middle ring, soft coral, no background */}
           <circle
             cx="60" cy="60" r="42"
             fill="none"
@@ -40,19 +38,16 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
             strokeDasharray={`${intakePct * circum} ${circum}`}
           />
 
-          {/* Exercise - innermost ring, soft teal green */}
+          {/* Exercise - innermost ring, soft teal green, no background */}
           {burned > 0 && (
-            <>
-              <circle cx="60" cy="60" r="34" fill="none" stroke="#cfe8df" strokeWidth="8" />
-              <circle
-                cx="60" cy="60" r="34"
-                fill="none"
-                stroke="#7ec5b0"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeDasharray={`${exercisePct * circum} ${circum}`}
-              />
-            </>
+            <circle
+              cx="60" cy="60" r="34"
+              fill="none"
+              stroke="#7ec5b0"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${exercisePct * circum} ${circum}`}
+            />
           )}
         </svg>
 
