@@ -13,7 +13,7 @@ interface Props {
 
 export function FoodEntryForm({ prefilled, onSaved }: Props) {
   const [foodName, setFoodName] = useState("");
-  const [grams, setGrams] = useState(100);
+  const [grams, setGrams] = useState("");
   const [mealType, setMealType] = useState("lunch");
   const [saving, setSaving] = useState(false);
 
@@ -24,7 +24,8 @@ export function FoodEntryForm({ prefilled, onSaved }: Props) {
   }, [prefilled]);
 
   const per100 = prefilled;
-  const factor = grams / 100;
+  const gramNum = Number(grams) || 0;
+  const factor = gramNum / 100;
 
   async function handleSave() {
     setSaving(true);
@@ -34,7 +35,7 @@ export function FoodEntryForm({ prefilled, onSaved }: Props) {
       body: JSON.stringify({
         foodName,
         mealType,
-        portion: `${grams}g`,
+        portion: `${gramNum}g`,
         calories: per100 ? per100.calories * factor : 0,
         protein: per100 ? per100.protein * factor : 0,
         fat: per100 ? per100.fat * factor : 0,
@@ -62,7 +63,8 @@ export function FoodEntryForm({ prefilled, onSaved }: Props) {
         <Input
           type="number"
           value={grams}
-          onChange={(e) => setGrams(Number(e.target.value))}
+          onChange={(e) => setGrams(e.target.value)}
+          placeholder="请输入克数"
         />
       </div>
       <div className="space-y-1">
