@@ -12,8 +12,11 @@ export async function Header() {
         <Link href="/" className="font-semibold text-lg">
           🍎 健康追踪
         </Link>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <Link href="/settings" className="text-sm text-muted-foreground hover:text-foreground">
+            ⚙️
+          </Link>
+          <span className="text-sm text-muted-foreground hidden sm:inline">
             {session?.user?.name}
           </span>
           <form action={signOutAction}>

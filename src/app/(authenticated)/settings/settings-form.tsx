@@ -1,0 +1,107 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface Props {
+  user: {
+    name: string;
+    age: number | null;
+    gender: string | null;
+    height: number | null;
+    weight: number | null;
+    goal: string;
+  } | null;
+}
+
+export function SettingsForm({ user }: Props) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [goal, setGoal] = useState(user?.goal || "maintain");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
+    const formData = new FormData(e.currentTarget);
+    const data: Record<string, unknown> = { goal };
+    ["name", "age", "gender", "height", "weight"].forEach((key) => {
+      const val = formData.get(key) as string;
+      data[key] = val || null;
+    });
+
+    await fetch("/api/user", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    setSaving(false);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-1">
+        <Label>昵称</Label>
+        <Input name="name" defaultValue={user?.name || ""} required />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <Label>年龄</Label>
+          <Input name="age" type="number" defaultValue={user?.age || ""} />
+        </div>
+        <div className="space-y-1">
+          <Label>性别</Label>
+          <select
+            name="gender"
+            defaultValue={user?.gender || ""}
+            className="w-full border rounded-md p-2 text-sm"
+          >
+            <option value="">未选择</option>
+            <option value="male">男</option>
+            <option value="female">女</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <Label>身高 (cm)</Label>
+          <Input name="height" type="number" step="0.1" defaultValue={user?.height || ""} />
+        </div>
+        <div className="space-y-1">
+          <Label>体重 (kg)</Label>
+          <Input name="weight" type="number" step="0.1" defaultValue={user?.weight || ""} />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label>目标</Label>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { value: "lose", label: "减重", icon: "📉" },
+            { value: "maintain", label: "保持", icon: "⚖️" },
+            { value: "gain", label: "增重", icon: "📈" },
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`p-3 rounded-lg border text-center transition-colors ${
+                goal === opt.value
+                  ? "border-primary bg-primary/10 text-primary font-medium"
+                  : "hover:bg-muted"
+              }`}
+              onClick={() => setGoal(opt.value)}
+            >
+              <div className="text-xl">{opt.icon}</div>
+              <div className="text-sm">{opt.label}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <Button type="submit" className="w-full" disabled={saving}>
+        {saving ? "保存中..." : "保存设置"}
+      </Button>
+    </form>
+  );
+}
