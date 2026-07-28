@@ -13,20 +13,18 @@ interface Props {
     gender: string | null;
     height: number | null;
     weight: number | null;
-    goal: string;
   } | null;
 }
 
 export function SettingsForm({ user }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [goal, setGoal] = useState(user?.goal || "maintain");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
     const formData = new FormData(e.currentTarget);
-    const data: Record<string, unknown> = { goal };
+    const data: Record<string, unknown> = {};
     ["name", "age", "gender", "height", "weight"].forEach((key) => {
       const val = formData.get(key) as string;
       data[key] = val || null;
@@ -73,30 +71,6 @@ export function SettingsForm({ user }: Props) {
         <div className="space-y-1">
           <Label>体重 (kg)</Label>
           <Input name="weight" type="number" step="0.1" defaultValue={user?.weight || ""} />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label>目标</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { value: "lose", label: "减重", icon: "📉" },
-            { value: "maintain", label: "保持", icon: "⚖️" },
-            { value: "gain", label: "增重", icon: "📈" },
-          ].map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`p-3 rounded-lg border text-center transition-colors ${
-                goal === opt.value
-                  ? "border-primary bg-primary/10 text-primary font-medium"
-                  : "hover:bg-muted"
-              }`}
-              onClick={() => setGoal(opt.value)}
-            >
-              <div className="text-xl">{opt.icon}</div>
-              <div className="text-sm">{opt.label}</div>
-            </button>
-          ))}
         </div>
       </div>
       <Button type="submit" className="w-full" disabled={saving}>
