@@ -37,12 +37,12 @@ export default async function DashboardPage() {
 
   // BMR + TDEE
   let tdee = 2000;
+  let bmr = 1500;
   if (user?.weight && user?.height && user?.age) {
-    let bmr: number;
     if (user.gender === "male") {
-      bmr = 10 * user.weight + 6.25 * user.height - 5 * user.age + 5;
+      bmr = Math.round(10 * user.weight + 6.25 * user.height - 5 * user.age + 5);
     } else {
-      bmr = 10 * user.weight + 6.25 * user.height - 5 * user.age - 161;
+      bmr = Math.round(10 * user.weight + 6.25 * user.height - 5 * user.age - 161);
     }
     tdee = Math.round(bmr * 1.375);
   }
@@ -70,18 +70,7 @@ export default async function DashboardPage() {
 
       <div className="space-y-6">
         <div className="text-center">
-          <CalorieRing consumed={todayCalories} target={targetCal} />
-          <div className="flex justify-center gap-6 mt-3 text-sm">
-            <span className="text-green-600">
-              摄入 {todayCalories} kcal
-            </span>
-            <span className="text-orange-600">
-              运动消耗 {exerciseCalories} kcal
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            净摄入：{todayCalories - exerciseCalories} kcal
-          </p>
+          <CalorieRing consumed={todayCalories} burned={exerciseCalories} bmr={bmr} target={targetCal} />
         </div>
 
         <QuickActions />
