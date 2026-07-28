@@ -23,7 +23,7 @@ export default async function SettingsPage() {
     <>
       <h1 className="text-xl font-semibold mb-4">个人设置</h1>
       <SettingsForm user={user} />
-      <div className="mt-6 pt-6 border-t flex justify-center">
+      <div className="mt-8 pt-6 border-t flex justify-center pb-4">
         <form action={signOutAction}>
           <Button type="submit" variant="outline" className="text-muted-foreground">
             退出登录
