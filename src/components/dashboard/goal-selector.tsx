@@ -1,25 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const goals = [
-  { value: "lose", label: "减重", icon: "📉", desc: "控制热量" },
-  { value: "maintain", label: "保持", icon: "⚖️", desc: "维持现状" },
-  { value: "gain", label: "增重", icon: "📈", desc: "增加摄入" },
+  { value: "lose", label: "减重", icon: "📉", desc: "控制热量摄入，逐步减重" },
+  { value: "maintain", label: "保持", icon: "⚖️", desc: "维持当前体重，均衡饮食" },
+  { value: "gain", label: "增重", icon: "📈", desc: "增加热量摄入，健康增重" },
 ];
+
+const goalLabels: Record<string, string> = {
+  lose: "减重",
+  maintain: "保持",
+  gain: "增重",
+};
 
 interface Props {
   currentGoal: string;
+  showOnboarding: boolean;
 }
 
-export function GoalSelector({ currentGoal }: Props) {
+export function GoalSelector({ currentGoal, showOnboarding }: Props) {
   const [goal, setGoal] = useState(currentGoal);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    if (showOnboarding) {
+      setDialogOpen(true);
+    }
+  }, [showOnboarding]);
+
   async function handleChange(value: string) {
-    if (value === goal || saving) return;
+    if (saving) return;
     setSaving(true);
     setGoal(value);
     await fetch("/api/user", {
@@ -28,31 +43,62 @@ export function GoalSelector({ currentGoal }: Props) {
       body: JSON.stringify({ goal: value }),
     });
     setSaving(false);
+    setDialogOpen(false);
     router.refresh();
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {goals.map((g) => {
-        const isActive = goal === g.value;
-        return (
-          <button
-            key={g.value}
-            type="button"
-            disabled={saving}
-            onClick={() => handleChange(g.value)}
-            className={`flex flex-col items-center gap-1 p-3 rounded-lg border transition-all ${
-              isActive
-                ? "border-primary bg-primary/10 text-primary font-medium shadow-sm"
-                : "border-transparent bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            <span className="text-xl">{g.icon}</span>
-            <span className="text-sm font-medium">{g.label}</span>
-            <span className="text-[10px] opacity-60">{g.desc}</span>
-          </button>
-        );
-      })}
-    </div>
+    <>
+      <button
+        type="button"
+        onClick={() => setDialogOpen(true)}
+        className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border bg-muted/50 hover:bg-muted transition-colors"
+      >
+        <span className="text-muted-foreground">目标：</span>
+        <span className="font-medium">{goalLabels[goal] || "保持"}</span>
+        <span className="text-xs text-muted-foreground ml-0.5">▾</span>
+      </button>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>选择你的目标</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-4">
+            {goals.map((g) => {
+              const isActive = goal === g.value;
+              return (
+                <button
+                  key={g.value}
+                  type="button"
+                  disabled={saving}
+                  onClick={() => handleChange(g.value)}
+                  className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left ${
+                    isActive
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-transparent bg-muted/50 hover:bg-muted"
+                  }`}
+                >
+                  <span className="text-3xl">{g.icon}</span>
+                  <div>
+                    <div className="font-semibold text-base">
+                      {g.label}
+                      {isActive && (
+                        <span className="ml-2 text-xs text-primary font-normal">
+                          当前
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {g.desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

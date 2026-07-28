@@ -14,6 +14,12 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
+  // Check if this is a new user (no body data, no entries)
+  const isNewUser =
+    !user?.age &&
+    !user?.height &&
+    !user?.weight;
+
   // Calculate or get daily summary
   await calculateDailySummary(session.user.id, new Date());
   const startOfDay = new Date();
@@ -50,15 +56,19 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="text-xl font-semibold">
-          {user?.name ? `${user.name}，你好` : "你好"}
-        </h1>
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">
+            {user?.name ? `${user.name}，你好` : "你好"}
+          </h1>
+        </div>
+        <GoalSelector
+          currentGoal={user?.goal || "maintain"}
+          showOnboarding={isNewUser}
+        />
       </div>
 
       <div className="space-y-6">
-        <GoalSelector currentGoal={user?.goal || "maintain"} />
-
         <div className="text-center">
           <CalorieRing consumed={todayCalories} target={targetCal} />
           <div className="flex justify-center gap-6 mt-3 text-sm">
