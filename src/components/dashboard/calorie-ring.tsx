@@ -21,15 +21,15 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
       {/* Layered rings */}
       <div className="relative w-36 h-36">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-          {/* BMR base ring (outermost, soft stone) */}
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#d1d5d0" strokeWidth="10" />
+          {/* BMR base ring (outermost, soft sky blue) */}
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#c4d9e8" strokeWidth="10" />
 
-          {/* Exercise burn ring (middle, warm amber) */}
+          {/* Exercise burn ring (middle, soft teal green) */}
           {burned > 0 && (
             <circle
               cx="60" cy="60" r="50"
               fill="none"
-              stroke="#c9956b"
+              stroke="#7ec5b0"
               strokeWidth="10"
               strokeLinecap="round"
               strokeDasharray={`${exercisePct * circum} ${circum}`}
@@ -38,22 +38,22 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
             />
           )}
 
-          {/* Total burn ring (inner, lighter amber) */}
+          {/* Total burn ring (inner, lighter teal) */}
           <circle
             cx="60" cy="60" r="42"
             fill="none"
-            stroke="#dbb894"
+            stroke="#a3dbcc"
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={`${burnPct * circum} ${circum}`}
             opacity={0.5}
           />
 
-          {/* Intake ring (innermost, muted sage) */}
+          {/* Intake ring (innermost, soft coral) */}
           <circle
             cx="60" cy="60" r="34"
             fill="none"
-            stroke={consumed > target ? "#c4706e" : "#5f8b7a"}
+            stroke={consumed > target ? "#e8857c" : "#f0a098"}
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={`${intakePct * circum} ${circum}`}
@@ -70,15 +70,15 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
       {/* Legend */}
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3 text-xs">
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#5f8b7a] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#f0a098] inline-block" />
           摄入 {consumed}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#c9956b] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#7ec5b0] inline-block" />
           运动 {burned}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#d1d5d0] inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#c4d9e8] inline-block" />
           基础 {bmr}
         </span>
       </div>
