@@ -37,6 +37,7 @@ export function SettingsForm({ user }: Props) {
     });
     setSaving(false);
     router.refresh();
+    router.push("/");
   }
 
   return (
