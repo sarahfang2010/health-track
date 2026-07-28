@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AppShell } from "@/components/layout/app-shell";
 import { FoodList } from "@/components/food/food-list";
 import Link from "next/link";
 
@@ -18,7 +17,7 @@ export default function FoodHistoryPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <AppShell>
+    <>
       <div className="flex items-center justify-between mb-4">
         <Link href="/food" className="text-sm text-primary">
           ← 返回
@@ -38,6 +37,6 @@ export default function FoodHistoryPage() {
       </div>
 
       <FoodList entries={entries} />
-    </AppShell>
+    </>
   );
 }

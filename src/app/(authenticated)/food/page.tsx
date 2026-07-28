@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { AppShell } from "@/components/layout/app-shell";
 import { PhotoUpload } from "@/components/food/photo-upload";
 import { FoodEntryForm } from "@/components/food/food-entry-form";
 import { FoodList } from "@/components/food/food-list";
@@ -33,7 +32,7 @@ export default function FoodPage() {
   }
 
   return (
-    <AppShell>
+    <>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">饮食记录</h1>
         <Link href="/food/history" className="text-sm text-primary">
@@ -69,6 +68,6 @@ export default function FoodPage() {
         </h2>
         <FoodList entries={entries} />
       </div>
-    </AppShell>
+    </>
   );
 }
