@@ -76,3 +76,56 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(entry, { status: 201 });
 }
+
+export async function PUT(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { id, mealType, foodName, portion, calories, protein, fat, carbs, fiber, sugar } = body;
+
+  const existing = await prisma.foodEntry.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  const entry = await prisma.foodEntry.update({
+    where: { id },
+    data: {
+      mealType: mealType || existing.mealType,
+      foodName: foodName || existing.foodName,
+      portion: portion || null,
+      calories: parseFloat(calories),
+      protein: parseFloat(protein),
+      fat: parseFloat(fat),
+      carbs: parseFloat(carbs),
+      fiber: (fiber !== undefined && fiber !== null && fiber !== "") ? parseFloat(fiber) : null,
+      sugar: (sugar !== undefined && sugar !== null && sugar !== "") ? parseFloat(sugar) : null,
+    },
+  });
+
+  return NextResponse.json(entry);
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "缺少ID" }, { status: 400 });
+  }
+
+  const existing = await prisma.foodEntry.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  await prisma.foodEntry.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}

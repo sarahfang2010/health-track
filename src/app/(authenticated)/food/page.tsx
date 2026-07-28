@@ -3,15 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { PhotoUpload } from "@/components/food/photo-upload";
 import { FoodEntryForm } from "@/components/food/food-entry-form";
-import { FoodList } from "@/components/food/food-list";
+import { FoodList, FoodEntry } from "@/components/food/food-list";
 import { Button } from "@/components/ui/button";
 import { Candidate } from "@/services/foodRecognition";
 import Link from "next/link";
 
 export default function FoodPage() {
-  const [entries, setEntries] = useState([]);
+  const [entries, setEntries] = useState<FoodEntry[]>([]);
   const [showManual, setShowManual] = useState(false);
   const [candidate, setCandidate] = useState<Candidate | undefined>();
+  const [editingEntry, setEditingEntry] = useState<FoodEntry | null>(null);
 
   const fetchEntries = useCallback(async () => {
     const res = await fetch("/api/food");
@@ -22,14 +23,41 @@ export default function FoodPage() {
 
   function handlePhotoConfirm(c: Candidate) {
     setCandidate(c);
+    setEditingEntry(null);
     setShowManual(false);
   }
 
   function handleSaved() {
     setCandidate(undefined);
+    setEditingEntry(null);
     setShowManual(false);
     fetchEntries();
   }
+
+  function handleEdit(entry: FoodEntry) {
+    setEditingEntry(entry);
+    setCandidate(undefined);
+    setShowManual(false);
+  }
+
+  async function handleDelete(id: string) {
+    await fetch(`/api/food?id=${id}`, { method: "DELETE" });
+    fetchEntries();
+  }
+
+  function handleCancel() {
+    setCandidate(undefined);
+    setEditingEntry(null);
+    setShowManual(false);
+  }
+
+  function handleManualEntry() {
+    setCandidate(undefined);
+    setEditingEntry(null);
+    setShowManual(true);
+  }
+
+  const showForm = showManual || !!candidate || !!editingEntry;
 
   return (
     <>
@@ -41,24 +69,29 @@ export default function FoodPage() {
       </div>
 
       <div className="space-y-3">
-        <PhotoUpload onConfirm={handlePhotoConfirm} />
-
-        {!showManual && !candidate && (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setShowManual(true)}
-          >
-            ✏️ 手动录入
-          </Button>
+        {!showForm && (
+          <>
+            <PhotoUpload onConfirm={handlePhotoConfirm} />
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleManualEntry}
+            >
+              ✏️ 手动录入
+            </Button>
+          </>
         )}
 
-        {showManual && !candidate && (
-          <FoodEntryForm onSaved={handleSaved} />
+        {showManual && !candidate && !editingEntry && (
+          <FoodEntryForm onSaved={handleSaved} onCancel={handleCancel} />
         )}
 
-        {candidate && (
-          <FoodEntryForm prefilled={candidate} onSaved={handleSaved} />
+        {candidate && !editingEntry && (
+          <FoodEntryForm prefilled={candidate} onSaved={handleSaved} onCancel={handleCancel} />
+        )}
+
+        {editingEntry && (
+          <FoodEntryForm editEntry={editingEntry} onSaved={handleSaved} onCancel={handleCancel} />
         )}
       </div>
 
@@ -66,7 +99,11 @@ export default function FoodPage() {
         <h2 className="text-sm font-medium text-muted-foreground mb-3">
           今日记录
         </h2>
-        <FoodList entries={entries} />
+        <FoodList
+          entries={entries}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
     </>
   );

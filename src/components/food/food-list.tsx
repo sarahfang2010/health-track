@@ -1,4 +1,6 @@
-interface FoodEntry {
+"use client";
+
+export interface FoodEntry {
   id: string;
   foodName: string;
   mealType: string;
@@ -6,6 +8,8 @@ interface FoodEntry {
   protein: number;
   fat: number;
   carbs: number;
+  fiber: number | null;
+  sugar: number | null;
   portion: string | null;
   imageUrl: string | null;
   source: string;
@@ -21,9 +25,11 @@ const mealLabels: Record<string, string> = {
 
 interface Props {
   entries: FoodEntry[];
+  onEdit?: (entry: FoodEntry) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function FoodList({ entries }: Props) {
+export function FoodList({ entries, onEdit, onDelete }: Props) {
   if (entries.length === 0) {
     return (
       <p className="text-center text-muted-foreground py-8">
@@ -41,7 +47,7 @@ export function FoodList({ entries }: Props) {
         totalCal += entry.calories;
         totalProtein += entry.protein;
         return (
-          <div key={entry.id} className="flex items-center gap-3 p-3 border rounded-lg">
+          <div key={entry.id} className="flex items-center gap-3 p-3 border rounded-lg group">
             {entry.imageUrl ? (
               <img src={entry.imageUrl} alt="" className="w-14 h-14 rounded object-cover" />
             ) : (
@@ -62,6 +68,28 @@ export function FoodList({ entries }: Props) {
               <div className="text-xs text-muted-foreground">
                 蛋白 {entry.protein}g
               </div>
+              {(onEdit || onDelete) && (
+                <div className="flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onEdit && (
+                    <button
+                      type="button"
+                      className="text-xs text-primary hover:underline"
+                      onClick={() => onEdit(entry)}
+                    >
+                      编辑
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      type="button"
+                      className="text-xs text-destructive hover:underline"
+                      onClick={() => onDelete(entry.id)}
+                    >
+                      删除
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         );
