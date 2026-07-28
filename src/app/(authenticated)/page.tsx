@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CalorieRing } from "@/components/dashboard/calorie-ring";
 import { AdviceCard } from "@/components/dashboard/advice-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
+import { GoalSelector } from "@/components/dashboard/goal-selector";
 import { getRecommendations } from "@/services/recommendationEngine";
 import { calculateDailySummary } from "@/services/summaryCalculator";
 import Link from "next/link";
@@ -47,26 +48,17 @@ export default async function DashboardPage() {
   const recommendations = await getRecommendations(session.user.id);
   const topAdvice = recommendations.slice(0, 3);
 
-  const goalLabels: Record<string, string> = {
-    lose: "减重",
-    maintain: "保持",
-    gain: "增重",
-  };
-
   return (
     <>
       <div className="mb-4">
         <h1 className="text-xl font-semibold">
           {user?.name ? `${user.name}，你好` : "你好"}
         </h1>
-        {user?.goal && (
-          <p className="text-sm text-muted-foreground">
-            当前目标：{goalLabels[user.goal] || user.goal}
-          </p>
-        )}
       </div>
 
       <div className="space-y-6">
+        <GoalSelector currentGoal={user?.goal || "maintain"} />
+
         <div className="text-center">
           <CalorieRing consumed={todayCalories} target={targetCal} />
           <div className="flex justify-center gap-6 mt-3 text-sm">
