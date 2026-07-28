@@ -4,7 +4,8 @@
       "command": "npx",
       "args": ["@edgeone/makers-mcp@latest", "--region", "china"],
       "env": {
-        "EDGEONE_PAGES_API_TOKEN": "YzRq8D5kDTUJC2jEVZQ5Xo26xb2b4TmB"
+        "EDGEONE_PAGES_API_TOKEN": "7AAl8/bd/NIrt2Hw6r+zM4me5YxJmejZzejJjEe0QAM=",
+        "EDGEONE_PAGES_PROJECT_NAME": "health-track"
       }
     }
   }
