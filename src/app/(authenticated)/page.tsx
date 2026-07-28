@@ -86,6 +86,20 @@ export default async function DashboardPage() {
 
         <QuickActions />
 
+        <Link
+          href="/recommendations/tcm"
+          className="flex items-center gap-3 p-4 rounded-lg border-2 border-green-200 bg-green-50/60 hover:bg-green-50 transition-colors"
+        >
+          <span className="text-2xl">🌿</span>
+          <div className="flex-1">
+            <div className="font-semibold text-sm">中医食补养生</div>
+            <div className="text-xs text-muted-foreground">
+              根据季节和体质，推荐食疗方案
+            </div>
+          </div>
+          <span className="text-muted-foreground text-sm">→</span>
+        </Link>
+
         {topAdvice.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
