@@ -10,6 +10,7 @@ export interface HealthReport {
   triglycerides: number | null;
   uricAcid: number | null;
   flags: string;
+  reportImageUrl: string | null;
   notes: string | null;
 }
 
@@ -40,6 +41,13 @@ export function ReportCard({ report }: { report: HealthReport }) {
           </div>
         )}
       </div>
+      {report.reportImageUrl && (
+        <img
+          src={report.reportImageUrl}
+          alt="体检报告"
+          className="w-full h-32 object-cover rounded-lg border"
+        />
+      )}
       {hasData ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           {report.bloodSugar && (

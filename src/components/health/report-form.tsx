@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ const fields = [
 export function ReportForm() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,6 +36,21 @@ export function ReportForm() {
     if (notes) data.notes = notes;
     data.reportDate = formData.get("reportDate") as string;
 
+    // Upload image first if selected
+    const file = fileRef.current?.files?.[0];
+    if (file) {
+      const uploadForm = new FormData();
+      uploadForm.append("image", file);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadForm,
+      });
+      if (uploadRes.ok) {
+        const { imageUrl } = await uploadRes.json();
+        data.reportImageUrl = imageUrl;
+      }
+    }
+
     await fetch("/api/health", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -42,6 +59,13 @@ export function ReportForm() {
     setSaving(false);
     router.push("/health");
     router.refresh();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
   }
 
   return (
@@ -54,6 +78,26 @@ export function ReportForm() {
           defaultValue={new Date().toISOString().slice(0, 10)}
         />
       </div>
+
+      <div className="space-y-1">
+        <Label>📷 拍摄体检报告</Label>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileChange}
+          className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+        />
+        {preview && (
+          <img
+            src={preview}
+            alt="报告预览"
+            className="mt-2 w-full h-40 object-cover rounded-lg border"
+          />
+        )}
+      </div>
+
       {fields.map((f) => (
         <div key={f.name} className="space-y-1">
           <Label>{f.label}</Label>
