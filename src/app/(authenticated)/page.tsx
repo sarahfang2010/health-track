@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { AppShell } from "@/components/layout/app-shell";
 import { CalorieRing } from "@/components/dashboard/calorie-ring";
 import { AdviceCard } from "@/components/dashboard/advice-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
@@ -55,7 +54,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <AppShell>
+    <>
       <div className="mb-4">
         <h1 className="text-xl font-semibold">
           {user?.name ? `${user.name}，你好` : "你好"}
@@ -103,6 +102,6 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }
