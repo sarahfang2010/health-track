@@ -60,7 +60,7 @@ export function GoalSelector({ currentGoal, showOnboarding }: Props) {
       </button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm bg-white">
           <DialogHeader>
             <DialogTitle>选择你的目标</DialogTitle>
           </DialogHeader>
@@ -76,7 +76,7 @@ export function GoalSelector({ currentGoal, showOnboarding }: Props) {
                   className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left ${
                     isActive
                       ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-transparent bg-muted/50 hover:bg-muted"
+                      : "border-transparent bg-white hover:bg-muted/50"
                   }`}
                 >
                   <span className="text-3xl">{g.icon}</span>
