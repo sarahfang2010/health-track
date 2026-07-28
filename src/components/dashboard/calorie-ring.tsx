@@ -14,6 +14,15 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
   const intakePct = Math.min(consumed / maxVal, 1);
   const bmrPct = Math.min(bmr / maxVal, 1);
 
+  // Intake color: normal → yellow near limit → red over
+  const intakeRatio = target > 0 ? consumed / target : 0;
+  let intakeColor = "#f0a098"; // normal coral
+  if (intakeRatio > 1) {
+    intakeColor = "#e06060"; // over limit: red
+  } else if (intakeRatio >= 0.8) {
+    intakeColor = "#e0c060"; // approaching limit: yellow
+  }
+
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-36 h-36">
@@ -32,7 +41,7 @@ export function CalorieRing({ consumed, burned, bmr, target }: Props) {
           <circle
             cx="60" cy="60" r="42"
             fill="none"
-            stroke={consumed > target ? "#e8857c" : "#f0a098"}
+            stroke={intakeColor}
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={`${intakePct * circum} ${circum}`}
