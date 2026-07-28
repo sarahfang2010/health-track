@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { signOut, auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/actions/auth";
 
 export async function Header() {
   const session = await auth();
@@ -15,12 +16,7 @@ export async function Header() {
           <span className="text-sm text-muted-foreground">
             {session?.user?.name}
           </span>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
+          <form action={signOutAction}>
             <Button type="submit" variant="ghost" size="sm">
               退出
             </Button>
