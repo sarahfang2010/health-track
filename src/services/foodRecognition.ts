@@ -104,6 +104,64 @@ async function findFoodsByName(names: string[]): Promise<Candidate[]> {
   return results;
 }
 
+export interface NutritionEstimate {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  fiber: number;
+  sugar: number;
+}
+
+export async function estimateNutrition(
+  foodName: string,
+  grams: number
+): Promise<NutritionEstimate | null> {
+  try {
+    const response = await fetch(AI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${AI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: `请估算"${foodName}"每100克的营养成分。只返回一个JSON对象，格式如下：{"calories":数字,"protein":数字,"fat":数字,"carbs":数字,"fiber":数字,"sugar":数字}。单位都是克（g），热量是千卡（kcal）。不要有其他内容。`,
+          },
+        ],
+        max_tokens: 150,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "";
+    // Try to parse JSON from the response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+
+    const per100 = JSON.parse(jsonMatch[0]);
+    const factor = grams / 100;
+
+    return {
+      calories: Math.round((per100.calories || 0) * factor),
+      protein: parseFloat(((per100.protein || 0) * factor).toFixed(1)),
+      fat: parseFloat(((per100.fat || 0) * factor).toFixed(1)),
+      carbs: parseFloat(((per100.carbs || 0) * factor).toFixed(1)),
+      fiber: parseFloat(((per100.fiber || 0) * factor).toFixed(1)),
+      sugar: parseFloat(((per100.sugar || 0) * factor).toFixed(1)),
+    };
+  } catch (err) {
+    console.error("AI nutrition estimation failed:", err);
+    return null;
+  }
+}
+
 export async function recognizeFood(
   imagePath?: string
 ): Promise<Candidate[]> {
