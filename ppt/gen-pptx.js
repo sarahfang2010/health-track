@@ -73,7 +73,7 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
     { t:'中医食补', d:'四季体质调理\nAI 定制食疗方案' }
   ];
   items.forEach((it,i) => card(s, 1.2+i*2.3, 3, 2.1, 2, it.t, it.d));
-  s.addText('Next.js 全栈  ·  MiniMax-M3 多模态 AI  ·  PostgreSQL', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
+  s.addText('Next.js 全栈  ·  MiniMax-M3 多模态 AI  ·  PostgreSQL  ·  手机端+PC端响应式适配', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
 
 // ========== S05: DEMO ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };

@@ -107,7 +107,7 @@ export function PhotoUpload({ onConfirm }: Props) {
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{c.name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {c.category} · {c.calories} kcal/100g
+                        {c.category}{c.calories === -1 ? " · 🤖 估算中..." : c.calories > 0 ? ` · ${c.calories} kcal/100g` : ""}
                       </div>
                     </div>
                   </div>

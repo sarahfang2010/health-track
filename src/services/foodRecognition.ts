@@ -101,13 +101,13 @@ async function findFoodsByName(names: string[]): Promise<Candidate[]> {
         carbs: match.carbs, fiber: match.fiber, sugar: match.sugar,
       });
     } else if (!match) {
-      // AI identified a food not in our database — create a synthetic candidate
+      // AI identified a food not in our database — estimate nutrition via AI
       const fakeId = "ai-" + aiName;
       if (!seen.has(fakeId)) {
         seen.add(fakeId);
         results.push({
           id: fakeId, name: aiName, category: "AI识别",
-          calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, sugar: 0,
+          calories: -1, protein: -1, fat: -1, carbs: -1, fiber: -1, sugar: -1,
         });
       }
     }
@@ -182,7 +182,29 @@ export async function recognizeFood(
     try {
       const foodNames = await recognizeFoodWithAI(imagePath);
       const matches = await findFoodsByName(foodNames);
-      if (matches.length > 0) return matches;
+
+      // Enrich unmatched candidates with AI-estimated nutrition
+      const enriched = await Promise.all(
+        matches.map(async (c) => {
+          if (c.calories === -1) {
+            const est = await estimateNutrition(c.name, 100);
+            if (est) {
+              return {
+                ...c,
+                calories: Math.round(est.calories),
+                protein: est.protein,
+                fat: est.fat,
+                carbs: est.carbs,
+                fiber: est.fiber,
+                sugar: est.sugar,
+              };
+            }
+          }
+          return c;
+        })
+      );
+
+      if (enriched.length > 0) return enriched;
     } catch (err) {
       console.error("AI recognition failed, falling back to random:", err);
     }
