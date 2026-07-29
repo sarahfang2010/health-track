@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   try {
     const result = await estimateNutrition(foodName, Number(grams));
     if (!result) {
-      return NextResponse.json({ error: "AI 未能估算该食物，请尝试其他名称" }, { status: 500 });
+      return NextResponse.json({ error: "请输入合理食物" }, { status: 400 });
     }
     return NextResponse.json(result);
   } catch (err) {

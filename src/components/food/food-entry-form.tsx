@@ -21,6 +21,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   const [saving, setSaving] = useState(false);
   const [estimating, setEstimating] = useState(false);
   const [gramError, setGramError] = useState("");
+  const [foodError, setFoodError] = useState("");
   const [aiResult, setAiResult] = useState<{calories:number;protein:number;fat:number;carbs:number;fiber:number;sugar:number} | null>(null);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   async function autoEstimate() {
     if (!per100 && !isEditing && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
       setEstimating(true);
+      setFoodError("");
       try {
         const res = await fetch("/api/food/estimate", {
           method: "POST",
@@ -58,6 +60,8 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
         if (res.ok) {
           const data = await res.json();
           setAiResult(data);
+        } else if (res.status === 400) {
+          setFoodError("请输入合理食物");
         }
       } catch {}
       setEstimating(false);
@@ -66,6 +70,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
 
   async function handleSave() {
     setGramError("");
+    setFoodError("");
 
     // Validate grams
     const gNum = Number(grams) || 0;
@@ -73,6 +78,14 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
       setGramError("请输入合理数字");
       return;
     }
+
+    // For manual entry without photo: require AI estimation first
+    if (!per100 && !isEditing && !aiResult && foodName.trim() && gNum > 0) {
+      await autoEstimate();
+      if (foodError) return;
+    }
+
+    if (foodError) return;
 
     setSaving(true);
 
@@ -130,7 +143,8 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
         <div className="flex-1 space-y-3">
           <div className="space-y-1">
             <Label>食物名称</Label>
-            <Input value={foodName} onChange={(e) => setFoodName(e.target.value)} />
+            <Input value={foodName} onChange={(e) => { setFoodName(e.target.value); setFoodError(""); }} />
+            {foodError && <p className="text-xs text-red-500 mt-0.5">{foodError}</p>}
           </div>
           <div className="space-y-1">
             <Label>份量 (克)</Label>
