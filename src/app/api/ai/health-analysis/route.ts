@@ -75,9 +75,15 @@ export async function POST() {
     },
     body: JSON.stringify({
       model: AI_MODEL,
-      messages: [{ role: "user", content }],
-      max_tokens: 1200,
-      temperature: 0.1,
+      messages: [
+        {
+          role: "system",
+          content: "你是一个能够读取和分析图片的专业医学顾问。你有视觉能力，可以看到用户上传的体检报告图片并从中提取数据。你必须基于图片中的实际数据进行分析，不要说你无法看到图片。",
+        },
+        { role: "user", content },
+      ],
+      max_tokens: 1600,
+      temperature: 0,
     }),
   });
 
