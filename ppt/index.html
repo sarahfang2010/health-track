@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康追踪 · AI饮食健康管理平台</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Noto+Sans+SC:wght@200;300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #fafaf8;
+  --ink: #0a0a0a;
+  --accent:#1a56db;
+  --accent-light:#e8effc;
+  --text-sec:#555;
+  --border:#ddd;
+  --sans:'Inter','Noto Sans SC',sans-serif;
+  --sp:max(20px,2.5vh);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);overflow:hidden;height:100vh}
+.slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100vh;scroll-behavior:smooth}
+.slide{flex:0 0 100vw;scroll-snap-align:start;height:100vh;display:flex;align-items:center;justify-content:center;padding:max(40px,5vh) max(40px,5vw);background:var(--paper)}
+.inner{max-width:min(1100px,90vw);width:100%}
+h1{font-size:min(6.4vw,11vh);font-weight:200;line-height:1.1;letter-spacing:-0.02em}
+.accent{color:var(--accent)}
+h2{font-size:min(3.2vw,6vh);font-weight:200;margin-bottom:var(--sp)}
+h3{font-size:min(1.6vw,2.6vh);font-weight:500;color:var(--accent);margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:max(40px,4vw)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:max(24px,2vw)}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:max(24px,2vw)}
+.card{padding:max(24px,3vh) max(28px,3vw);border:1px solid var(--border);background:var(--paper)}
+.card.accent{background:var(--paper);border-color:var(--accent);border-left:3px solid var(--accent)}
+.card.accent h4{color:var(--accent)}
+.card h4{font-size:min(1.4vw,2.4vh);font-weight:500;margin-bottom:10px}
+.card p{font-size:min(1.3vw,2.2vh);line-height:1.7;color:var(--text-sec)}
+.big-num{font-size:min(6vw,10vh);font-weight:200;line-height:1}
+.note{font-size:min(1.1vw,1.8vh);color:var(--text-sec);margin-top:var(--sp)}
+.tag{display:inline-block;padding:6px 14px;background:var(--accent);color:#fff;font-size:min(1vw,1.8vh);font-weight:500;margin-right:6px;margin-bottom:4px}
+.dot-grid{position:fixed;inset:0;pointer-events:none;opacity:.03;background-image:radial-gradient(circle,var(--ink) 1px,transparent 1px);background-size:20px 20px}
+hr{height:1px;background:var(--border);border:none;margin:var(--sp) 0}
+.row{display:flex;align-items:baseline;gap:8px}
+.pill{display:inline-block;padding:5px 14px;border:1px solid var(--accent);color:var(--accent);font-size:min(1.1vw,1.9vh);font-weight:500;border-radius:0}
+body.low-power .dot-grid{display:none}
+nav{position:fixed;bottom:max(16px,1.5vh);right:max(20px,2vw);z-index:999;display:flex;gap:8px;font-size:14px;color:var(--text-sec)}
+nav span{cursor:pointer;padding:4px 16px;border:1px solid var(--border);background:var(--paper)}
+nav span:hover{background:var(--ink);color:var(--paper)}
+</style>
+</head>
+<body>
+<div class="dot-grid"></div>
+<div class="slides" id="track">
+
+<!-- 01 COVER -->
+<section class="slide"><div class="inner">
+<h1>健康<span class="accent">追踪</span></h1>
+<p style="font-size:min(1.6vw,2.2vh);margin-top:max(16px,2vh)">AI 驱动的饮食健康管理平台<br>拍照识别 · 体检分析 · 个性化建议</p>
+</div></section>
+
+<!-- 02 ONE-LINER -->
+<section class="slide"><div class="inner">
+<h3>一句话介绍</h3>
+<h2>「不只是记录吃了什么<br>而是告诉你<span class="accent">该不该吃</span>」</h2>
+<p style="margin-top:var(--sp);font-size:min(1.3vw,2.1vh);color:var(--text-sec)">接入 AI 视觉识别 · 打通体检报告 · 中西医结合建议</p>
+</div></section>
+
+<!-- 03 WHY -->
+<section class="slide"><div class="inner">
+<h3>为什么做这个产品</h3>
+<h2>为<span class="accent">每一个关心健康</span>的人</h2>
+<div class="grid-3" style="margin-top:max(32px,3vh)">
+<div class="card"><h4>💪 保持身材的女性</h4><p>想知道每餐热量，不想靠"感觉"来控制饮食</p></div>
+<div class="card"><h4>👨‍👩‍👧 关心孩子的家长</h4><p>了解孩子吃得是否均衡，营养是否足够</p></div>
+<div class="card"><h4>🩺 慢性病风险人群</h4><p>糖尿病、高血压、高血脂、高尿酸——需要根据体检结果调整饮食</p></div>
+</div>
+<p class="note">解决的核心问题：「不知道吃的东西有多少热量、是否适合自己身体状况」</p>
+</div></section>
+
+<!-- 04 OVERVIEW -->
+<section class="slide"><div class="inner">
+<h3>项目概况</h3>
+<h2>拍照即所得，AI 全流程</h2>
+<div class="grid-4" style="margin-top:max(32px,3vh)">
+<div class="card"><h4>📷 AI 识别</h4><p>拍照识别食物，自动匹配营养成分</p></div>
+<div class="card"><h4>📋 体检分析</h4><p>上传报告图片，AI 提取指标并解读</p></div>
+<div class="card"><h4>💡 个性建议</h4><p>结合健康档案，实时生成饮食指导</p></div>
+<div class="card"><h4>🌿 中医食补</h4><p>四季体质调理，AI 定制食疗方案</p></div>
+</div>
+<p class="note">Next.js 全栈 &nbsp;·&nbsp; MiniMax-M3 多模态 AI &nbsp;·&nbsp; PostgreSQL</p>
+</div></section>
+
+<!-- 04 DEMO HIGHLIGHTS -->
+<section class="slide"><div class="inner">
+<h3>Demo 功能亮点</h3>
+<div class="grid-2" style="margin-top:max(24px,2vh);align-items:center;">
+<div>
+<div class="big-num">5</div>
+<p style="font-size:min(1.3vw,2.1vh);color:var(--text-sec);margin-top:4px">AI 能力全面覆盖</p>
+<hr>
+<div class="row" style="gap:6px;flex-wrap:wrap;margin:12px 0">
+<span class="tag">拍照识别</span><span class="tag">营养估算</span><span class="tag">报告 OCR</span><span class="tag">AI 分析</span><span class="tag">中医食疗</span>
+</div>
+<p style="font-size:min(1.2vw,2vh);color:var(--text-sec)">全流程 AI 驱动：识别 → 分析 → 建议 → 食补</p>
+</div>
+<div>
+<div class="big-num">255</div>
+<p style="font-size:min(1.3vw,2.1vh);color:var(--text-sec);margin-top:4px">内置食物数据库</p>
+<hr>
+<p style="font-size:min(1.2vw,2vh);color:var(--text-sec);margin-top:12px">覆盖主食 · 肉类 · 蔬菜 · 水果 · 饮品 · 菜肴<br>AI 识别后智能匹配，未匹配项实时创建</p>
+</div>
+</div>
+<p class="note">响应式设计 · 手机端 + 桌面端 · 多用户支持</p>
+</div></section>
+
+<!-- 05 AI STACK -->
+<section class="slide"><div class="inner">
+<h3>技术架构</h3>
+<h2>全流程 <span class="accent">AI</span> 覆盖</h2>
+<div class="grid-3" style="margin-top:max(32px,3vh)">
+<div class="card accent"><h4>视觉识别</h4><p>MiniMax-M3 多模态模型，温度 0 确定性输出，3 次测试一致率 100%</p></div>
+<div class="card accent"><h4>营养估算</h4><p>输入食物名+克数，AI 实时返回热量/蛋白/脂肪/碳水/纤维/糖</p></div>
+<div class="card accent"><h4>报告分析</h4><p>上传体检报告，AI 三段式输出：指标提取 → 风险评估 → 饮食建议</p></div>
+</div>
+<p style="margin-top:var(--sp);font-size:min(1.2vw,2vh);color:var(--text-sec)">OCR 指标提取 &nbsp;·&nbsp; 规则引擎 + AI 双通道建议 &nbsp;·&nbsp; 中医食补 AI</p>
+</div></section>
+
+<!-- 06 PAIN POINTS -->
+<section class="slide"><div class="inner">
+<h3>市场痛点</h3>
+<div class="grid-3" style="margin-top:max(24px,2vh)">
+<div class="card"><h4>记录太麻烦</h4><p>手动查热量表效率极低，用户难以坚持。AI 拍照一秒完成</p></div>
+<div class="card"><h4>不知道该吃什么</h4><p>知道有高血糖，不知道面前这盘菜能不能吃</p></div>
+<div class="card"><h4>体检报告看不懂</h4><p>拿了报告不知指标含义，更不知怎么调整饮食</p></div>
+<div class="card"><h4>缺乏个性化</h4><p>市面上热量 App 千篇一律，不根据个人健康状况调整</p></div>
+<div class="card"><h4>中餐识别差</h4><p>海外竞品西餐为主，中餐数据匮乏，识别准确率低</p></div>
+<div class="card"><h4>缺 AI 深度</h4><p>现有产品多为简单数据库查询，缺乏真正的 AI 分析能力</p></div>
+</div>
+</div></section>
+
+<!-- 07 COMPETITORS -->
+<section class="slide"><div class="inner">
+<h3>竞品分析</h3>
+<div class="grid-2" style="margin-top:max(24px,2vh);gap:max(20px,2vw)">
+<div class="card"><h4>薄荷健康</h4><p>国内最大食物库，用户量大</p><p style="color:var(--accent);margin-top:4px;font-size:min(1.2vw,2vh)">✕ 无 AI 拍照 · 无体检关联</p></div>
+<div class="card"><h4>MyFitnessPal</h4><p>全球最大，数据库最丰富</p><p style="color:var(--accent);margin-top:4px;font-size:min(1.2vw,2vh)">✕ 西餐为主 · 国内体验差</p></div>
+<div class="card"><h4>Keep 饮食</h4><p>运动+饮食一体</p><p style="color:var(--accent);margin-top:4px;font-size:min(1.2vw,2vh)">✕ 功能浅 · 无 AI · 无体检</p></div>
+<div class="card accent"><h4>健康追踪（我们）</h4><p>AI 全流程 · 体检联动 · 中西医结合</p><p style="color:var(--accent);margin-top:4px;font-size:min(1.2vw,2vh)">✓ 无直接竞品做到全链路 AI</p></div>
+</div>
+</div></section>
+
+<!-- 08 FEATURES -->
+<section class="slide"><div class="inner">
+<h3>产品功能矩阵</h3>
+<div class="grid-4" style="margin-top:max(24px,2vh)">
+<div class="card accent"><h4>AI 拍照识别</h4><p>多选食物 · 逐个录入</p></div>
+<div class="card accent"><h4>AI 营养估算</h4><p>输入名称+克数即算</p></div>
+<div class="card accent"><h4>AI 体检 OCR</h4><p>报告图片自动提取指标</p></div>
+<div class="card accent"><h4>AI 报告分析</h4><p>三段式深度解读+建议</p></div>
+<div class="card accent"><h4>AI 中医食补</h4><p>体质+季节个性化食疗</p></div>
+<div class="card accent"><h4>热量圆环</h4><p>三层展示 · 超量变色预警</p></div>
+<div class="card accent"><h4>营养素进度</h4><p>蛋白/碳水/脂肪可视化</p></div>
+<div class="card accent"><h4>动态建议</h4><p>实时摄入分析+精准建议</p></div>
+</div>
+<p style="margin-top:12px;font-size:min(1.1vw,1.8vh);color:var(--text-sec)">17 项核心功能全部已实现 &nbsp;·&nbsp; 响应式适配</p>
+</div></section>
+
+<!-- 09 BUSINESS MODEL -->
+<section class="slide"><div class="inner">
+<h3>商业模式</h3>
+<div class="grid-3" style="margin-top:max(32px,3vh)">
+<div class="card"><h4>初期 · 免费</h4><p>积累用户和数据<br>验证 PMF</p></div>
+<div class="card"><h4>成长期 · Freemium</h4><p>免费版每日 5 次 AI<br>付费 ¥19/月 无限使用</p></div>
+<div class="card"><h4>成熟期 · B2B</h4><p>企业健康管理<br>¥5-10/人/月</p></div>
+</div>
+<p class="note">增值服务：营养师咨询平台抽佣 15-20% &nbsp;·&nbsp; 健康食品电商引流</p>
+</div></section>
+
+<!-- 10 FINANCIAL -->
+<section class="slide"><div class="inner">
+<h3>财务预测（第一年）</h3>
+<div class="grid-3" style="margin-top:max(32px,3vh)">
+<div class="card accent" style="text-align:center"><div class="big-num" style="font-size:min(6vw,10vh)">¥5万</div><p>保守<br><span style="color:var(--text-sec)">1万人 · 3%付费</span></p></div>
+<div class="card accent" style="text-align:center"><div class="big-num" style="font-size:min(6vw,10vh)">¥42万</div><p>中等<br><span style="color:var(--text-sec)">5万人 · 5%付费</span></p></div>
+<div class="card accent" style="text-align:center"><div class="big-num" style="font-size:min(6vw,10vh)">¥269万</div><p>乐观<br><span style="color:var(--text-sec)">20万人 · 8%付费</span></p></div>
+</div>
+<p style="margin-top:var(--sp);font-size:min(1.2vw,2vh);color:var(--text-sec)">年运营成本 ¥4,320 - ¥10,320 &nbsp;·&nbsp; AI API + 服务器 + 域名</p>
+</div></section>
+
+<!-- 12 RISKS -->
+<section class="slide"><div class="inner">
+<h3>风险与应对</h3>
+<div class="grid-2" style="margin-top:max(24px,2vh)">
+<div class="card accent"><h4>AI 准确率不足</h4><p>支持手动修正 · 灵活切换模型 · 持续优化 prompt</p></div>
+<div class="card accent"><h4>用户留存低</h4><p>体检→分析闭环 · 饮食打卡 · 成就系统</p></div>
+<div class="card accent"><h4>竞品跟进</h4><p>聚焦"全流程 AI + 体检联动"差异化</p></div>
+<div class="card accent"><h4>健康建议合规</h4><p>免责声明 · 医学顾问审核 · 仅供参考</p></div>
+<div class="card accent"><h4>盈利不清晰</h4><p>先免费验证 PMF · 1 万 MAU 再订阅</p></div>
+<div class="card accent"><h4>数据隐私</h4><p>行业标准加密 · 用户数据不出境</p></div>
+</div>
+</div></section>
+
+<!-- 13 NEXT STEPS -->
+<section class="slide"><div class="inner">
+<h3>下一步</h3>
+<div style="margin-top:max(32px,3vh);display:flex;flex-direction:column;gap:max(16px,1.8vh)">
+<div class="row" style="align-items:center;gap:max(16px,2vw)"><span class="pill">01</span><h4 style="font-size:min(1.5vw,2.4vh);font-weight:400;margin:0">找到 10-20 个真实用户，进行为期 2 周的测试</h4></div>
+<hr>
+<div class="row" style="align-items:center;gap:max(16px,2vw)"><span class="pill">02</span><h4 style="font-size:min(1.5vw,2.4vh);font-weight:400;margin:0">收集 AI 识别准确率和用户满意度数据</h4></div>
+<hr>
+<div class="row" style="align-items:center;gap:max(16px,2vw)"><span class="pill">03</span><h4 style="font-size:min(1.5vw,2.4vh);font-weight:400;margin:0">验证"体检报告 → AI 分析 → 饮食建议"需求强度</h4></div>
+<hr>
+<div class="row" style="align-items:center;gap:max(16px,2vw)"><span class="pill">04</span><h4 style="font-size:min(1.5vw,2.4vh);font-weight:400;margin:0">确定国内部署方案 · 迭代产品</h4></div>
+</div>
+</div></section>
+
+<!-- 14 CLOSING -->
+<section class="slide"><div class="inner" style="text-align:center">
+<h1 style="font-size:min(4.4vw,8vh);font-weight:200;line-height:1.3">每一次技术的进步<br>都应该让<span class="accent">普通人</span>的生活<br>变得更好一些</h1>
+<p style="margin-top:max(32px,4vh);font-size:min(1.3vw,2.1vh);color:var(--text-sec)">健康追踪 · 2026</p>
+<p style="margin-top:max(12px,1.5vh);font-size:min(1.1vw,1.8vh);color:var(--text-sec)">丁玥文 &nbsp;·&nbsp; 王琰若 &nbsp;·&nbsp; 方雅琪</p>
+</div></section>
+
+</div>
+
+<nav>
+<span onclick="document.getElementById('track').scrollBy({left:-window.innerWidth,behavior:'smooth'})">←</span>
+<span onclick="document.getElementById('track').scrollBy({left:window.innerWidth,behavior:'smooth'})">→</span>
+<span id="page-num" style="min-width:60px;text-align:center">1</span>
+</nav>
+
+<script>
+const track=document.getElementById('track');
+const num=document.getElementById('page-num');
+const slides=track.querySelectorAll('.slide');
+track.addEventListener('scroll',()=>{
+  const i=Math.round(track.scrollLeft/window.innerWidth);
+  num.textContent=(i+1)+'/'+slides.length;
+});
+
+// Keyboard nav
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')track.scrollBy({left:window.innerWidth,behavior:'smooth'});
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')track.scrollBy({left:-window.innerWidth,behavior:'smooth'});
+  if(e.key==='b'||e.key==='B')document.body.classList.toggle('low-power');
+});
+
+// Touch swipe
+let touchX=0;
+track.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX});
+track.addEventListener('touchend',e=>{
+  const d=touchX-e.changedTouches[0].clientX;
+  if(Math.abs(d)>50)track.scrollBy({left:d>0?window.innerWidth:-window.innerWidth,behavior:'smooth'});
+});
+</script>
+</body>
+</html>

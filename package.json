@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy": "node deploy.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -18,6 +19,7 @@
     "lucide-react": "^1.27.0",
     "next": "14.2.35",
     "next-auth": "^5.0.0-beta.32",
+    "pptxgenjs": "^4.0.1",
     "prisma": "^6.19.3",
     "react": "^18",
     "react-dom": "^18",
