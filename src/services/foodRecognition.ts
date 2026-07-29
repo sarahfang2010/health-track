@@ -133,8 +133,8 @@ export async function estimateNutrition(
             content: `请估算"${foodName}"每100克的营养成分。只返回一个JSON对象，格式如下：{"calories":数字,"protein":数字,"fat":数字,"carbs":数字,"fiber":数字,"sugar":数字}。单位都是克（g），热量是千卡（kcal）。不要有其他内容。`,
           },
         ],
-        max_tokens: 150,
-        temperature: 0.1,
+        max_tokens: 400,
+        temperature: 0,
       }),
     });
 
