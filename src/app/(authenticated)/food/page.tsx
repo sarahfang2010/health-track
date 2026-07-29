@@ -62,6 +62,7 @@ export default function FoodPage() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
+        <Link href="/" className="text-sm text-primary">← 返回</Link>
         <h1 className="text-xl font-semibold">饮食记录</h1>
         <Link href="/food/history" className="text-sm text-primary">
           历史记录 →
