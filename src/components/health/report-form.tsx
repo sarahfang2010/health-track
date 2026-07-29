@@ -6,28 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const fields = [
-  { name: "bloodSugar", label: "空腹血糖 (mmol/L)", placeholder: "如: 5.6" },
-  { name: "bloodPressureSystolic", label: "收缩压 (mmHg)", placeholder: "如: 120" },
-  { name: "bloodPressureDiastolic", label: "舒张压 (mmHg)", placeholder: "如: 80" },
-  { name: "totalCholesterol", label: "总胆固醇 (mmol/L)", placeholder: "如: 4.5" },
-  { name: "hdl", label: "HDL 高密度脂蛋白 (mmol/L)", placeholder: "如: 1.2" },
-  { name: "ldl", label: "LDL 低密度脂蛋白 (mmol/L)", placeholder: "如: 2.6" },
-  { name: "triglycerides", label: "甘油三酯 (mmol/L)", placeholder: "如: 1.5" },
-  { name: "uricAcid", label: "尿酸 (μmol/L)", placeholder: "如: 350" },
-];
-
 const MAX_IMAGES = 5;
 
 export function ReportForm() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [scanning, setScanning] = useState(false);
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [ocrDone, setOcrDone] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -37,33 +23,6 @@ export function ReportForm() {
     }
     setSelectedFiles(files);
     setPreviews(files.map((f) => URL.createObjectURL(f)));
-    setOcrDone(false);
-    setValues({});
-  }
-
-  async function handleOcrScan() {
-    if (selectedFiles.length === 0) return;
-    setScanning(true);
-    // Scan the first image for OCR
-    const fd = new FormData();
-    fd.append("image", selectedFiles[0]);
-    try {
-      const res = await fetch("/api/ai/ocr-report", { method: "POST", body: fd });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.values) {
-          const newValues: Record<string, string> = {};
-          for (const [key, val] of Object.entries(data.values)) {
-            if (val !== null && val !== undefined) {
-              newValues[key] = String(val);
-            }
-          }
-          setValues(newValues);
-          setOcrDone(true);
-        }
-      }
-    } catch {}
-    setScanning(false);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,12 +30,6 @@ export function ReportForm() {
     setSaving(true);
     const formData = new FormData(e.currentTarget);
     const data: Record<string, unknown> = {};
-    fields.forEach((f) => {
-      const val = formData.get(f.name) as string;
-      if (val) data[f.name] = parseFloat(val);
-    });
-    const notes = formData.get("notes") as string;
-    if (notes) data.notes = notes;
     data.reportDate = formData.get("reportDate") as string;
 
     // Upload all selected images
@@ -148,46 +101,12 @@ export function ReportForm() {
         )}
       </div>
 
-      {selectedFiles.length > 0 && !ocrDone && (
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleOcrScan}
-          disabled={scanning}
-        >
-          {scanning ? "🤖 AI 识别中..." : "🤖 AI 识别第一页指标"}
-        </Button>
-      )}
-
-      {ocrDone && (
-        <p className="text-xs text-green-600 text-center">
-          ✓ AI 已识别部分指标，请核对并补充
+      {selectedFiles.length > 0 && (
+        <p className="text-xs text-muted-foreground text-center">
+          保存后，可在健康档案页使用 AI 自动分析报告图片中的指标
         </p>
       )}
 
-      {fields.map((f) => (
-        <div key={f.name} className="space-y-1">
-          <Label>
-            {f.label}
-            {values[f.name] && (
-              <span className="text-green-600 text-xs ml-2">✓ 已识别</span>
-            )}
-          </Label>
-          <Input
-            name={f.name}
-            type="number"
-            step="0.1"
-            defaultValue={values[f.name] || ""}
-            placeholder={f.placeholder}
-            className={values[f.name] ? "border-green-300 bg-green-50/30" : ""}
-          />
-        </div>
-      ))}
-      <div className="space-y-1">
-        <Label>备注</Label>
-        <Input name="notes" placeholder="其他说明（可选）" />
-      </div>
       <Button type="submit" className="w-full" disabled={saving}>
         {saving ? "保存中..." : "保存体检报告"}
       </Button>

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { aiChat } from "@/services/ai";
+import fs from "fs/promises";
+import path from "path";
+
+const AI_API_URL = "https://opencode.ai/zen/go/v1/chat/completions";
+const AI_API_KEY = "sk-VEeGua9LQf8sg6lJpB3sEodxeUlNt5ii46Cr8AyO9TRhNSnWwm79SdbOElxsFM5V";
+const AI_MODEL = "mimo-v2.5";
 
 export async function POST() {
   const session = await auth();
@@ -16,34 +21,62 @@ export async function POST() {
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
-  const flags = report.flags ? report.flags.split(",").filter(Boolean) : [];
-  const hasAbnormal = flags.length > 0;
+  // Build prompt with text-based report data
+  const promptText = `请作为营养医学顾问，根据以下信息给出专业解读：
 
-  const reportData = {
-    日期: report.reportDate,
-    空腹血糖: report.bloodSugar ? `${report.bloodSugar} mmol/L` : "未测",
-    收缩压: report.bloodPressureSystolic ? `${report.bloodPressureSystolic} mmHg` : "未测",
-    舒张压: report.bloodPressureDiastolic ? `${report.bloodPressureDiastolic} mmHg` : "未测",
-    总胆固醇: report.totalCholesterol ? `${report.totalCholesterol} mmol/L` : "未测",
-    HDL: report.hdl ? `${report.hdl} mmol/L` : "未测",
-    LDL: report.ldl ? `${report.ldl} mmol/L` : "未测",
-    甘油三酯: report.triglycerides ? `${report.triglycerides} mmol/L` : "未测",
-    尿酸: report.uricAcid ? `${report.uricAcid} μmol/L` : "未测",
-    风险标记: flags.length > 0 ? flags.join("、") : "无明显异常",
-  };
+用户信息：${user?.gender === "male" ? "男性" : user?.gender === "female" ? "女性" : "未设置"}，${user?.age ? `${user.age}岁` : "未设置"}，目标：${user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持"}
 
-  const prompt = `请作为营养医学顾问，根据以下体检报告给出专业解读。用通俗易懂的语言，分三部分：
-1. 指标解读：逐一解释每项指标的含义和当前值是否正常
-2. 风险评估：综合评估当前健康状况，指出需要关注的方面
-3. 饮食建议：针对异常指标给出具体的饮食调整建议
+已有的检测值：血糖 ${report.bloodSugar || "未测"} mmol/L，血压 ${report.bloodPressureSystolic || "?"}/${report.bloodPressureDiastolic || "?"} mmHg，总胆固醇 ${report.totalCholesterol || "未测"} mmol/L，尿酸 ${report.uricAcid || "未测"} μmol/L。
 
-用户信息：${user?.gender === "male" ? "男性" : user?.gender === "female" ? "女性" : "未设置"}，${user?.age ? `${user.age}岁` : "未设置年龄"}，目标：${user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持"}
+请分三部分回答：
+1. 如果图片中有更多指标，请先提取并列出所有检测值
+2. 综合评估健康状况和风险
+3. 给出具体的饮食调整建议
 
-体检数据：
-${JSON.stringify(reportData, null, 2)}`;
+用通俗易懂的语言，控制在 400 字以内。`;
 
-  const result = await aiChat([{ role: "user", content: prompt }]);
-  if (!result) return NextResponse.json({ error: "AI 分析失败" }, { status: 500 });
+  // Build content array: text prompt + images
+  const content: unknown[] = [{ type: "text", text: promptText }];
 
-  return NextResponse.json({ analysis: result });
+  // Add report images
+  if (report.reportImageUrl) {
+    const imageUrls = report.reportImageUrl.split(",");
+    for (const url of imageUrls.slice(0, 3)) {
+      // Only include first 3 images to stay within token limits
+      const filePath = path.join(process.cwd(), "public", url);
+      try {
+        const buffer = await fs.readFile(filePath);
+        const base64 = buffer.toString("base64");
+        content.push({
+          type: "image_url",
+          image_url: { url: `data:image/jpeg;base64,${base64}` },
+        });
+      } catch {
+        // Skip if file not found
+      }
+    }
+  }
+
+  const response = await fetch(AI_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${AI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      messages: [{ role: "user", content }],
+      max_tokens: 800,
+      temperature: 0.3,
+    }),
+  });
+
+  if (!response.ok) {
+    return NextResponse.json({ error: "AI 分析失败" }, { status: 500 });
+  }
+
+  const data = await response.json();
+  const analysis = data.choices?.[0]?.message?.content || "";
+
+  return NextResponse.json({ analysis });
 }

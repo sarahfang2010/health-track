@@ -56,7 +56,7 @@ export default function HealthPage() {
                 onClick={analyzeReport}
                 disabled={analyzing}
               >
-                {analyzing ? "🤖 AI 分析中..." : "🤖 AI 解读我的体检报告"}
+                {analyzing ? "🤖 AI 分析中..." : "🤖 AI 分析报告图片及指标"}
               </Button>
             )}
             {aiAnalysis && (
