@@ -38,7 +38,7 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
           content: [
             {
               type: "text",
-              text: "请仔细观察图片中的食物。先描述食物特征，然后列出食物名称（中文），每行一个，最多5个。",
+              text: "请识别这张图片中的食物。只返回食物名称（中文），每行一个，最多5个。不要返回描述、思考过程或任何其他内容。",
             },
             {
               type: "image_url",
@@ -65,7 +65,7 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
   return content
     .split("\n")
     .map((line: string) => line.replace(/^\d+[\.\、\)]\s*/, "").trim())
-    .filter((line: string) => line.length > 0)
+    .filter((line: string) => line.length > 0 && line.length < 30 && !line.startsWith("#") && !line.includes("：") && !line.includes(":") && !line.includes("图片") && !line.includes("食物"))
     .slice(0, 5);
 }
 
