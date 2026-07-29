@@ -59,7 +59,8 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
   }
 
   const data = await response.json();
-  const content = data.choices?.[0]?.message?.content || "";
+  const raw = data.choices?.[0]?.message?.content || "";
+  const content = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
   return content
     .split("\n")
     .map((line: string) => line.replace(/^\d+[\.\、\)]\s*/, "").trim())
@@ -140,8 +141,9 @@ export async function estimateNutrition(
     if (!response.ok) return null;
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    // Try to parse JSON from the response
+    const raw = data.choices?.[0]?.message?.content || "";
+    // Strip think tags from minimax-m3
+    const content = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return null;
 
