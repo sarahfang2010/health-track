@@ -15,11 +15,8 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
-  // Check if this is a new user (no body data, no entries)
-  const isNewUser =
-    !user?.age &&
-    !user?.height &&
-    !user?.weight;
+  // Always allow goal onboarding (sessionStorage controls actual display)
+  const isNewUser = true;
 
   // Calculate or get daily summary
   await calculateDailySummary(session.user.id, new Date());
