@@ -42,17 +42,17 @@ export async function POST() {
   if (report.reportImageUrl) {
     const imageUrls = report.reportImageUrl.split(",");
     for (const url of imageUrls.slice(0, 3)) {
-      // Only include first 3 images to stay within token limits
-      const filePath = path.join(process.cwd(), "public", url);
+      const filePath = path.join(process.cwd(), "public", url.replace(/^\//, ""));
       try {
         const buffer = await fs.readFile(filePath);
         const base64 = buffer.toString("base64");
+        const ext = path.extname(filePath).slice(1) || "jpeg";
         content.push({
           type: "image_url",
-          image_url: { url: `data:image/jpeg;base64,${base64}` },
+          image_url: { url: `data:image/${ext};base64,${base64}` },
         });
-      } catch {
-        // Skip if file not found
+      } catch (err) {
+        console.error("Failed to read report image:", filePath, err);
       }
     }
   }
