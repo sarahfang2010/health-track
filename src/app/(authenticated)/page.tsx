@@ -15,8 +15,8 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
-  // Always allow goal onboarding (sessionStorage controls actual display)
-  const isNewUser = true;
+  // Only show onboarding for new users (no body data set)
+  const isNewUser = !user?.age && !user?.height && !user?.weight;
 
   // Calculate or get daily summary
   await calculateDailySummary(session.user.id, new Date());
