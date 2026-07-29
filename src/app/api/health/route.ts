@@ -41,8 +41,62 @@ export async function POST(req: NextRequest) {
       uricAcid: body.uricAcid ?? null,
       flags: flagsStr,
       notes: body.notes ?? null,
+      reportImageUrl: body.reportImageUrl ?? null,
     },
   });
 
   return NextResponse.json({ ...report, flagsArray: flags }, { status: 201 });
+}
+
+export async function PUT(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { id, ...updateData } = body;
+
+  const existing = await prisma.healthReport.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  const report = await prisma.healthReport.update({
+    where: { id },
+    data: {
+      reportDate: updateData.reportDate ? new Date(updateData.reportDate) : existing.reportDate,
+      bloodSugar: updateData.bloodSugar ?? null,
+      bloodPressureSystolic: updateData.bloodPressureSystolic ?? null,
+      bloodPressureDiastolic: updateData.bloodPressureDiastolic ?? null,
+      totalCholesterol: updateData.totalCholesterol ?? null,
+      hdl: updateData.hdl ?? null,
+      ldl: updateData.ldl ?? null,
+      triglycerides: updateData.triglycerides ?? null,
+      uricAcid: updateData.uricAcid ?? null,
+      notes: updateData.notes ?? null,
+      reportImageUrl: updateData.reportImageUrl ?? existing.reportImageUrl,
+    },
+  });
+
+  return NextResponse.json(report);
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "缺少ID" }, { status: 400 });
+
+  const existing = await prisma.healthReport.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+  }
+
+  await prisma.healthReport.delete({ where: { id } });
+  return NextResponse.json({ success: true });
 }

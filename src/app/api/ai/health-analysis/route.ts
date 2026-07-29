@@ -24,10 +24,12 @@ export async function POST() {
   const content: unknown[] = [];
 
   // Add report images first
+  let imagesLoaded = 0;
   if (report.reportImageUrl) {
     const imageUrls = report.reportImageUrl.split(",");
     for (const url of imageUrls.slice(0, 3)) {
-      const filePath = path.join(process.cwd(), "public", url.replace(/^\//, ""));
+      const relativeUrl = url.startsWith("/") ? url.slice(1) : url;
+      const filePath = path.join(process.cwd(), "public", relativeUrl);
       try {
         const buffer = await fs.readFile(filePath);
         const base64 = buffer.toString("base64");
@@ -36,9 +38,13 @@ export async function POST() {
           type: "image_url",
           image_url: { url: `data:image/${ext};base64,${base64}` },
         });
-      } catch {}
+        imagesLoaded++;
+      } catch (err) {
+        console.error("Failed to load image:", filePath, (err as Error).message);
+      }
     }
   }
+  console.log(`AI analysis: ${imagesLoaded} images loaded for report ${report.id}`);
 
   const userInfo = [
     user?.gender === "male" ? "男" : user?.gender === "female" ? "女" : "",

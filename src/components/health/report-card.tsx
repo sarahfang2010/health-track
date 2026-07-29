@@ -14,7 +14,7 @@ export interface HealthReport {
   notes: string | null;
 }
 
-export function ReportCard({ report }: { report: HealthReport }) {
+export function ReportCard({ report, onDelete }: { report: HealthReport; onDelete?: (id: string) => void }) {
   const flagsArr = report.flags ? report.flags.split(",").filter(Boolean) : [];
   const date = new Date(report.reportDate).toLocaleDateString("zh-CN");
 
@@ -25,7 +25,7 @@ export function ReportCard({ report }: { report: HealthReport }) {
     report.uricAcid;
 
   return (
-    <div className="border rounded-lg p-4 space-y-2">
+    <div className="border rounded-lg p-4 space-y-2 group">
       <div className="flex items-center justify-between">
         <span className="font-medium">{date}</span>
         {flagsArr.length > 0 && (
@@ -83,6 +83,17 @@ export function ReportCard({ report }: { report: HealthReport }) {
       )}
       {report.notes && (
         <p className="text-xs text-muted-foreground">{report.notes}</p>
+      )}
+      {onDelete && (
+        <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            type="button"
+            className="text-xs text-destructive hover:underline"
+            onClick={(e) => { e.stopPropagation(); onDelete(report.id); }}
+          >
+            删除
+          </button>
+        </div>
       )}
     </div>
   );

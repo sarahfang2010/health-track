@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ReportCard, HealthReport } from "@/components/health/report-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -10,11 +10,12 @@ export default function HealthPage() {
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => r.json())
-      .then(setReports);
+  const fetchReports = useCallback(async () => {
+    const res = await fetch("/api/health");
+    if (res.ok) setReports(await res.json());
   }, []);
+
+  useEffect(() => { fetchReports(); }, [fetchReports]);
 
   const latest = reports[0];
   const older = reports.slice(1);
@@ -32,6 +33,13 @@ export default function HealthPage() {
     setAnalyzing(false);
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("确定删除这份报告吗？")) return;
+    await fetch(`/api/health?id=${id}`, { method: "DELETE" });
+    setAiAnalysis("");
+    fetchReports();
+  }
+
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -43,29 +51,19 @@ export default function HealthPage() {
 
       {latest ? (
         <>
-          <h2 className="text-sm font-medium text-muted-foreground mb-2">
-            最新报告
-          </h2>
-          <ReportCard report={latest} />
+          <h2 className="text-sm font-medium text-muted-foreground mb-2">最新报告</h2>
+          <ReportCard report={latest} onDelete={handleDelete} />
 
           <div className="mt-4">
             {!aiAnalysis && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={analyzeReport}
-                disabled={analyzing}
-              >
+              <Button variant="outline" className="w-full" onClick={analyzeReport} disabled={analyzing}>
                 {analyzing ? "🤖 AI 分析中..." : "🤖 AI 分析报告图片及指标"}
               </Button>
             )}
             {aiAnalysis && (
               <div className="text-sm leading-relaxed whitespace-pre-line break-words overflow-hidden text-muted-foreground bg-muted/30 rounded-lg p-4">
                 {aiAnalysis}
-                <button
-                  className="text-xs text-primary mt-3 block hover:underline"
-                  onClick={analyzeReport}
-                >
+                <button className="text-xs text-primary mt-3 block hover:underline" onClick={analyzeReport}>
                   🔄 重新分析
                 </button>
               </div>
@@ -84,12 +82,10 @@ export default function HealthPage() {
 
       {older.length > 0 && (
         <>
-          <h2 className="text-sm font-medium text-muted-foreground mt-6 mb-2">
-            历史报告
-          </h2>
+          <h2 className="text-sm font-medium text-muted-foreground mt-6 mb-2">历史报告</h2>
           <div className="space-y-2">
-            {older.map((r: HealthReport) => (
-              <ReportCard key={r.id} report={r} />
+            {older.map((r) => (
+              <ReportCard key={r.id} report={r} onDelete={handleDelete} />
             ))}
           </div>
         </>
