@@ -98,7 +98,9 @@ export async function POST() {
   }
 
   const data = await response.json();
-  const analysis = data.choices?.[0]?.message?.content || "";
+  const rawContent = data.choices?.[0]?.message?.content || "";
+  // Strip <think> tags from minimax-m3 response
+  const analysis = rawContent.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
   return NextResponse.json({ analysis });
 }

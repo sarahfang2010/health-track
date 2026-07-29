@@ -28,7 +28,8 @@ export async function aiChat(
 
     if (!response.ok) return null;
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || null;
+    const rawContent = data.choices?.[0]?.message?.content || "";
+    return rawContent.replace(/<think>[\s\S]*?<\/think>/g, "").trim() || null;
   } catch {
     return null;
   }

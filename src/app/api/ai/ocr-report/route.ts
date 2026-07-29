@@ -82,7 +82,8 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await aiResponse.json();
-  const content = data.choices?.[0]?.message?.content || "";
+  const rawContent = data.choices?.[0]?.message?.content || "";
+  const content = rawContent.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/);
