@@ -48,7 +48,6 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
     setSaving(true);
 
     let nutrition = aiResult;
-    // For manual entry (no prefilled, no edit), estimate via AI
     if (!per100 && !isEditing && foodName && gramNum > 0) {
       setEstimating(true);
       try {
@@ -59,6 +58,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
         });
         if (res.ok) {
           nutrition = await res.json();
+          setAiResult(nutrition);
         }
       } catch {}
       setEstimating(false);
@@ -88,47 +88,71 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
     onSaved();
   }
 
+  const photoCals = per100 ? Math.round(per100.calories * factor) : 0;
+  const displayCals = aiResult?.calories || photoCals || (editEntry?.calories || 0);
+
   return (
     <div className="space-y-4 p-4 border rounded-lg">
       <div className="text-sm font-medium text-muted-foreground">
         {isEditing ? "✏️ 编辑饮食" : prefilled ? "📷 已识别食物" : "✏️ 手动录入"}
       </div>
-      <div className="space-y-1">
-        <Label>食物名称</Label>
-        <Input value={foodName} onChange={(e) => setFoodName(e.target.value)} />
+
+      <div className="flex items-end gap-3">
+        <div className="flex-1 space-y-3">
+          <div className="space-y-1">
+            <Label>食物名称</Label>
+            <Input value={foodName} onChange={(e) => setFoodName(e.target.value)} />
+          </div>
+          <div className="space-y-1">
+            <Label>份量 (克)</Label>
+            <Input
+              type="number"
+              value={grams}
+              onChange={(e) => setGrams(e.target.value)}
+              placeholder="请输入克数"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>餐别</Label>
+            <select
+              className="w-full border rounded-md p-2 text-sm"
+              value={mealType}
+              onChange={(e) => setMealType(e.target.value)}
+            >
+              <option value="breakfast">早餐</option>
+              <option value="lunch">午餐</option>
+              <option value="dinner">晚餐</option>
+              <option value="snack">加餐/零食</option>
+            </select>
+          </div>
+        </div>
+
+        {displayCals > 0 && (
+          <div className="flex flex-col items-center min-w-[70px] pb-1">
+            <span className="text-2xl font-bold">{displayCals}</span>
+            <span className="text-xs text-muted-foreground">kcal</span>
+            {estimating && (
+              <span className="text-[10px] text-muted-foreground mt-1">🤖 估算中</span>
+            )}
+          </div>
+        )}
       </div>
-      <div className="space-y-1">
-        <Label>份量 (克)</Label>
-        <Input
-          type="number"
-          value={grams}
-          onChange={(e) => setGrams(e.target.value)}
-          placeholder="请输入克数"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label>餐别</Label>
-        <select
-          className="w-full border rounded-md p-2 text-sm"
-          value={mealType}
-          onChange={(e) => setMealType(e.target.value)}
-        >
-          <option value="breakfast">早餐</option>
-          <option value="lunch">午餐</option>
-          <option value="dinner">晚餐</option>
-          <option value="snack">加餐/零食</option>
-        </select>
-      </div>
-{!per100 && !isEditing && aiResult && (
-        <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
-          <div>热量: <span className="font-medium text-foreground">{aiResult.calories}</span> kcal</div>
-          <div>蛋白质: <span className="font-medium text-foreground">{aiResult.protein}</span>g</div>
-          <div>脂肪: <span className="font-medium text-foreground">{aiResult.fat}</span>g</div>
-          <div>碳水: <span className="font-medium text-foreground">{aiResult.carbs}</span>g</div>
-          <div>纤维: <span className="font-medium text-foreground">{aiResult.fiber}</span>g</div>
-          <div>糖: <span className="font-medium text-foreground">{aiResult.sugar}</span>g</div>
+
+      {aiResult && (
+        <div className="grid grid-cols-4 gap-2 text-[11px] text-muted-foreground bg-muted/30 rounded-lg p-2.5">
+          <div>蛋白 <span className="font-medium text-foreground">{aiResult.protein}</span>g</div>
+          <div>脂肪 <span className="font-medium text-foreground">{aiResult.fat}</span>g</div>
+          <div>碳水 <span className="font-medium text-foreground">{aiResult.carbs}</span>g</div>
+          <div>纤维 <span className="font-medium text-foreground">{aiResult.fiber}</span>g</div>
         </div>
       )}
+
+      {!per100 && !isEditing && !aiResult && foodName && gramNum > 0 && (
+        <p className="text-xs text-muted-foreground text-center">
+          点击保存，AI 将自动估算营养成分
+        </p>
+      )}
+
       <div className="flex gap-2">
         {onCancel && (
           <Button variant="outline" onClick={onCancel} className="flex-1">
