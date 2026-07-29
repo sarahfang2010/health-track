@@ -21,7 +21,37 @@ export function ReportForm() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [values, setValues] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPreview(URL.createObjectURL(file));
+
+    // AI OCR scan
+    setScanning(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await fetch("/api/ai/ocr-report", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.values) {
+          const newValues: Record<string, string> = {};
+          for (const [key, val] of Object.entries(data.values)) {
+            if (val !== null && val !== undefined) {
+              newValues[key] = String(val);
+            }
+          }
+          setValues(newValues);
+        }
+      }
+    } catch {}
+    setScanning(false);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,7 +66,6 @@ export function ReportForm() {
     if (notes) data.notes = notes;
     data.reportDate = formData.get("reportDate") as string;
 
-    // Upload image first if selected
     const file = fileRef.current?.files?.[0];
     if (file) {
       const uploadForm = new FormData();
@@ -61,15 +90,8 @@ export function ReportForm() {
     router.refresh();
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
         <Label>报告日期</Label>
         <Input
@@ -89,6 +111,9 @@ export function ReportForm() {
           onChange={handleFileChange}
           className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
         />
+        {scanning && (
+          <p className="text-xs text-muted-foreground mt-1">🤖 AI 正在识别报告中的指标...</p>
+        )}
         {preview && (
           <img
             src={preview}
@@ -100,15 +125,27 @@ export function ReportForm() {
 
       {fields.map((f) => (
         <div key={f.name} className="space-y-1">
-          <Label>{f.label}</Label>
-          <Input name={f.name} type="number" step="0.1" placeholder={f.placeholder} />
+          <Label>
+            {f.label}
+            {values[f.name] && (
+              <span className="text-green-600 text-xs ml-2">✓ AI 已识别</span>
+            )}
+          </Label>
+          <Input
+            name={f.name}
+            type="number"
+            step="0.1"
+            defaultValue={values[f.name] || ""}
+            placeholder={f.placeholder}
+            className={values[f.name] ? "border-green-300 bg-green-50/30" : ""}
+          />
         </div>
       ))}
       <div className="space-y-1">
         <Label>备注</Label>
         <Input name="notes" placeholder="其他说明（可选）" />
       </div>
-      <Button type="submit" className="w-full" disabled={saving}>
+      <Button type="submit" className="w-full" disabled={saving || scanning}>
         {saving ? "保存中..." : "保存体检报告"}
       </Button>
     </form>
