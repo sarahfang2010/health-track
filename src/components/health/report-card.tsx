@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export interface HealthReport {
   id: string;
   reportDate: string;
@@ -84,8 +86,15 @@ export function ReportCard({ report, onDelete }: { report: HealthReport; onDelet
       {report.notes && (
         <p className="text-xs text-muted-foreground">{report.notes}</p>
       )}
-      {onDelete && (
-        <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+      {(onDelete) && (
+        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Link
+            href={`/health/edit/${report.id}`}
+            className="text-xs text-primary hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            编辑
+          </Link>
           <button
             type="button"
             className="text-xs text-destructive hover:underline"
