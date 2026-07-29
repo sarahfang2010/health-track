@@ -72,35 +72,44 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
 async function findFoodsByName(names: string[]): Promise<Candidate[]> {
   if (names.length === 0) return [];
 
-  // Get all food database entries for matching
   const allFoods = await prisma.foodDatabase.findMany();
   const results: Candidate[] = [];
   const seen = new Set<string>();
 
   for (const aiName of names) {
-    // Try exact match first
+    // Try exact match
     let match = allFoods.find((f) => f.name === aiName);
-    // Try: DB food name is contained in AI result
+    // Try: AI name contains DB food name (e.g., "迷你汉堡" contains no DB name)
     if (!match) {
-      match = allFoods.find((f) => aiName.includes(f.name));
+      match = allFoods.find((f) => aiName.includes(f.name) && f.name.length >= 2);
     }
-    // Try: AI result keyword matches DB food name
+    // Try: DB food name contains AI name keyword
     if (!match) {
-      match = allFoods.find((f) => f.name.includes(aiName));
+      // Split AI name into 2-char+ substrings and try matching
+      for (let i = 0; i < aiName.length - 1; i++) {
+        const sub = aiName.substring(i, i + 2);
+        match = allFoods.find((f) => f.name.includes(sub));
+        if (match) break;
+      }
     }
+
     if (match && !seen.has(match.id)) {
       seen.add(match.id);
       results.push({
-        id: match.id,
-        name: match.name,
-        category: match.category,
-        calories: match.calories,
-        protein: match.protein,
-        fat: match.fat,
-        carbs: match.carbs,
-        fiber: match.fiber,
-        sugar: match.sugar,
+        id: match.id, name: match.name, category: match.category,
+        calories: match.calories, protein: match.protein, fat: match.fat,
+        carbs: match.carbs, fiber: match.fiber, sugar: match.sugar,
       });
+    } else if (!match) {
+      // AI identified a food not in our database — create a synthetic candidate
+      const fakeId = "ai-" + aiName;
+      if (!seen.has(fakeId)) {
+        seen.add(fakeId);
+        results.push({
+          id: fakeId, name: aiName, category: "AI识别",
+          calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0, sugar: 0,
+        });
+      }
     }
   }
   return results;
