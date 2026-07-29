@@ -16,20 +16,36 @@ interface Props {
   } | null;
 }
 
+const limits: Record<string, number> = { age: 122, height: 272, weight: 635 };
+
 export function SettingsForm({ user }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSaving(true);
+    setErrors({});
     const formData = new FormData(e.currentTarget);
     const data: Record<string, unknown> = {};
+    let hasError = false;
+    const newErrors: Record<string, string> = {};
+
     ["name", "age", "gender", "height", "weight"].forEach((key) => {
       const val = formData.get(key) as string;
+      if (limits[key] && Number(val) > limits[key]) {
+        newErrors[key] = "请填写正确数据";
+        hasError = true;
+      }
       data[key] = val || null;
     });
 
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setSaving(true);
     await fetch("/api/user", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +65,8 @@ export function SettingsForm({ user }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <Label>年龄</Label>
-          <Input name="age" type="number" defaultValue={user?.age || ""} />
+          <Input name="age" type="number" min={0} max={122} defaultValue={user?.age || ""} />
+          {errors.age && <p className="text-xs text-red-500 mt-0.5">{errors.age}</p>}
         </div>
         <div className="space-y-1">
           <Label>性别</Label>
@@ -67,11 +84,13 @@ export function SettingsForm({ user }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <Label>身高 (cm)</Label>
-          <Input name="height" type="number" step="0.1" defaultValue={user?.height || ""} />
+          <Input name="height" type="number" step="0.1" min={0} max={272} defaultValue={user?.height || ""} />
+          {errors.height && <p className="text-xs text-red-500 mt-0.5">{errors.height}</p>}
         </div>
         <div className="space-y-1">
           <Label>体重 (kg)</Label>
-          <Input name="weight" type="number" step="0.1" defaultValue={user?.weight || ""} />
+          <Input name="weight" type="number" step="0.1" min={0} max={635} defaultValue={user?.weight || ""} />
+          {errors.weight && <p className="text-xs text-red-500 mt-0.5">{errors.weight}</p>}
         </div>
       </div>
       <Button type="submit" className="w-full" disabled={saving}>
