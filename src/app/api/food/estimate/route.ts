@@ -14,11 +14,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "缺少参数" }, { status: 400 });
   }
 
-  const result = await estimateNutrition(foodName, Number(grams));
-
-  if (!result) {
-    return NextResponse.json({ error: "估算失败" }, { status: 500 });
+  try {
+    const result = await estimateNutrition(foodName, Number(grams));
+    if (!result) {
+      return NextResponse.json({ error: "AI 未能估算该食物，请尝试其他名称" }, { status: 500 });
+    }
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error("estimate error:", err);
+    return NextResponse.json({ error: "估算出错" }, { status: 500 });
   }
-
-  return NextResponse.json(result);
 }
