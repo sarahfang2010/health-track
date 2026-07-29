@@ -16,29 +16,14 @@ export async function POST() {
     where: { userId: session.user.id },
     orderBy: { reportDate: "desc" },
   });
-
   if (!report) return NextResponse.json({ error: "请先录入体检报告" }, { status: 400 });
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
-  // Build prompt with text-based report data
-  const promptText = `你是营养医学顾问。请仔细阅读上传的体检报告图片，从中提取所有检测指标的值。
+  // Build content array: images first, then structured prompt
+  const content: unknown[] = [];
 
-用户基本信息：${user?.gender === "male" ? "男性" : user?.gender === "female" ? "女性" : "未知"}，${user?.age ? `${user.age}岁` : "年龄未知"}，目标：${user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持"}
-
-注意：图片中是体检报告原文，请从图片中直接读取各项指标（血糖、血压、血脂、尿酸等），不要参考文字描述中可能为空的占位符。
-
-请分三部分回答：
-1. 从图片中提取并列出所有检测指标的名称、数值、单位和参考范围，标注哪些正常、哪些异常
-2. 综合评估健康状况、风险和需要关注的问题
-3. 根据异常指标和用户目标，给出具体可操作的饮食调整建议
-
-控制在 500 字以内。`;
-
-  // Build content array: text prompt + images
-  const content: unknown[] = [{ type: "text", text: promptText }];
-
-  // Add report images
+  // Add report images first
   if (report.reportImageUrl) {
     const imageUrls = report.reportImageUrl.split(",");
     for (const url of imageUrls.slice(0, 3)) {
@@ -51,11 +36,36 @@ export async function POST() {
           type: "image_url",
           image_url: { url: `data:image/${ext};base64,${base64}` },
         });
-      } catch (err) {
-        console.error("Failed to read report image:", filePath, err);
-      }
+      } catch {}
     }
   }
+
+  const userInfo = [
+    user?.gender === "male" ? "男" : user?.gender === "female" ? "女" : "",
+    user?.age ? `${user.age}岁` : "",
+    user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持体重",
+  ].filter(Boolean).join("，");
+
+  content.push({
+    type: "text",
+    text: `你是专业营养医学顾问。请仔细阅读上面上传的体检报告图片，严格按照以下格式逐条回答，不要遗漏任何部分：
+
+## 一、指标提取
+从图片中逐一提取所有检测指标，格式如下：
+- 指标名称：数值 单位（参考范围：X-X），状态：正常/偏高/偏低
+
+## 二、综合评估
+根据各项指标结果，评估用户整体健康风险，指出需要重点关注的问题。
+用户信息：${userInfo}
+
+## 三、饮食建议
+针对每项异常指标逐一给出具体、可操作的饮食调整建议，包括：
+- 推荐多吃什么
+- 建议少吃什么
+- 每日摄入量的具体建议
+
+请确保每个部分都完整回答。`,
+  });
 
   const response = await fetch(AI_API_URL, {
     method: "POST",
@@ -66,8 +76,8 @@ export async function POST() {
     body: JSON.stringify({
       model: AI_MODEL,
       messages: [{ role: "user", content }],
-      max_tokens: 800,
-      temperature: 0.3,
+      max_tokens: 1200,
+      temperature: 0.1,
     }),
   });
 
