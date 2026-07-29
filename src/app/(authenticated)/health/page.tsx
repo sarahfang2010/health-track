@@ -9,6 +9,7 @@ export default function HealthPage() {
   const [reports, setReports] = useState<HealthReport[]>([]);
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const fetchReports = useCallback(async () => {
     const res = await fetch("/api/health");
@@ -23,6 +24,7 @@ export default function HealthPage() {
   async function analyzeReport() {
     setAnalyzing(true);
     setAiAnalysis("");
+    setSaved(false);
     try {
       const res = await fetch("/api/ai/health-analysis", { method: "POST" });
       if (res.ok) {
@@ -31,6 +33,23 @@ export default function HealthPage() {
       }
     } catch {}
     setAnalyzing(false);
+  }
+
+  async function saveAnalysis() {
+    if (!latest) return;
+    const existingNotes = latest.notes || "";
+    const newNotes = existingNotes
+      ? existingNotes + "\n\n--- AI 分析记录 ---\n" + aiAnalysis
+      : aiAnalysis;
+    const res = await fetch("/api/health", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: latest.id, notes: newNotes }),
+    });
+    if (res.ok) {
+      setSaved(true);
+      fetchReports();
+    }
   }
 
   async function handleDelete(id: string) {
@@ -64,9 +83,18 @@ export default function HealthPage() {
             {aiAnalysis && (
               <div className="text-sm leading-relaxed whitespace-pre-line break-words overflow-hidden text-muted-foreground bg-muted/30 rounded-lg p-4">
                 {aiAnalysis}
-                <button className="text-xs text-primary mt-3 block hover:underline" onClick={analyzeReport}>
-                  🔄 重新分析
-                </button>
+                <div className="flex gap-3 mt-3">
+                  <button className="text-xs text-primary hover:underline" onClick={analyzeReport}>
+                    🔄 重新分析
+                  </button>
+                  {!saved ? (
+                    <button className="text-xs text-primary hover:underline" onClick={saveAnalysis}>
+                      💾 保存分析结果
+                    </button>
+                  ) : (
+                    <span className="text-xs text-green-600">✓ 已保存</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
