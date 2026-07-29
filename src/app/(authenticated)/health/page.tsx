@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { ReportCard, HealthReport } from "@/components/health/report-card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function HealthPage() {
   const [reports, setReports] = useState<HealthReport[]>([]);
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     fetch("/api/health")
@@ -15,6 +18,19 @@ export default function HealthPage() {
 
   const latest = reports[0];
   const older = reports.slice(1);
+
+  async function analyzeReport() {
+    setAnalyzing(true);
+    setAiAnalysis("");
+    try {
+      const res = await fetch("/api/ai/health-analysis", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setAiAnalysis(data.analysis);
+      }
+    } catch {}
+    setAnalyzing(false);
+  }
 
   return (
     <>
@@ -31,6 +47,30 @@ export default function HealthPage() {
             最新报告
           </h2>
           <ReportCard report={latest} />
+
+          <div className="mt-4">
+            {!aiAnalysis && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={analyzeReport}
+                disabled={analyzing}
+              >
+                {analyzing ? "🤖 AI 分析中..." : "🤖 AI 解读我的体检报告"}
+              </Button>
+            )}
+            {aiAnalysis && (
+              <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground bg-muted/30 rounded-lg p-4">
+                {aiAnalysis}
+                <button
+                  className="text-xs text-primary mt-3 block hover:underline"
+                  onClick={analyzeReport}
+                >
+                  🔄 重新分析
+                </button>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         <div className="text-center py-12 text-muted-foreground">

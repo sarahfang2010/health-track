@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const seasonalTips = [
   {
@@ -137,13 +138,55 @@ export default function TCMPage() {
         </div>
       )}
 
-      {/* AI placeholder */}
-      <div className="mt-6 p-4 border-2 border-dashed rounded-lg text-center">
-        <p className="text-sm text-muted-foreground">
-          🤖 后续将接入 AI，根据你的体质和体检数据<br />
-          生成个性化中医食补方案
+      {/* AI personalized TCM */}
+      <div className="mt-6 p-4 border rounded-lg bg-gradient-to-r from-green-50/50 to-white">
+        <h3 className="font-medium text-sm mb-2">🤖 AI 个性化食补</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          根据你的体质、健康状况和当前季节，AI 为你定制专属建议
         </p>
+        <AIAdvice />
       </div>
     </>
+  );
+}
+
+function AIAdvice() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [season, setSeason] = useState("");
+
+  async function getAIAdvice() {
+    setLoading(true);
+    setResult("");
+    try {
+      const res = await fetch("/api/ai/tcm", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setResult(data.advice);
+        setSeason(data.season);
+      }
+    } catch {}
+    setLoading(false);
+  }
+
+  if (result) {
+    return (
+      <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground bg-white rounded-lg p-3 border">
+        {season && <div className="text-xs text-muted-foreground mb-2">📍 {season}季专属</div>}
+        {result}
+        <button
+          className="text-xs text-primary mt-3 block hover:underline"
+          onClick={getAIAdvice}
+        >
+          🔄 重新生成
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Button variant="outline" className="w-full" onClick={getAIAdvice} disabled={loading}>
+      {loading ? "🤖 AI 分析中..." : "🤖 生成我的专属食补方案"}
+    </Button>
   );
 }
