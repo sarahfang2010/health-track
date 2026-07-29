@@ -17,25 +17,37 @@ const fields = [
   { name: "uricAcid", label: "尿酸 (μmol/L)", placeholder: "如: 350" },
 ];
 
+const MAX_IMAGES = 5;
+
 export function ReportForm() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [scanning, setScanning] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
+  const [ocrDone, setOcrDone] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (files.length > MAX_IMAGES) {
+      alert(`最多上传 ${MAX_IMAGES} 张图片`);
+      return;
+    }
+    setSelectedFiles(files);
+    setPreviews(files.map((f) => URL.createObjectURL(f)));
+    setOcrDone(false);
+    setValues({});
+  }
 
-    // AI OCR scan
+  async function handleOcrScan() {
+    if (selectedFiles.length === 0) return;
     setScanning(true);
+    // Scan the first image for OCR
+    const fd = new FormData();
+    fd.append("image", selectedFiles[0]);
     try {
-      const fd = new FormData();
-      fd.append("image", file);
       const res = await fetch("/api/ai/ocr-report", { method: "POST", body: fd });
       if (res.ok) {
         const data = await res.json();
@@ -47,6 +59,7 @@ export function ReportForm() {
             }
           }
           setValues(newValues);
+          setOcrDone(true);
         }
       }
     } catch {}
@@ -66,8 +79,9 @@ export function ReportForm() {
     if (notes) data.notes = notes;
     data.reportDate = formData.get("reportDate") as string;
 
-    const file = fileRef.current?.files?.[0];
-    if (file) {
+    // Upload all selected images
+    const imageUrls: string[] = [];
+    for (const file of selectedFiles) {
       const uploadForm = new FormData();
       uploadForm.append("image", file);
       const uploadRes = await fetch("/api/upload", {
@@ -76,8 +90,11 @@ export function ReportForm() {
       });
       if (uploadRes.ok) {
         const { imageUrl } = await uploadRes.json();
-        data.reportImageUrl = imageUrl;
+        imageUrls.push(imageUrl);
       }
+    }
+    if (imageUrls.length > 0) {
+      data.reportImageUrl = imageUrls.join(",");
     }
 
     await fetch("/api/health", {
@@ -91,7 +108,7 @@ export function ReportForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
         <Label>报告日期</Label>
         <Input
@@ -102,33 +119,59 @@ export function ReportForm() {
       </div>
 
       <div className="space-y-1">
-        <Label>📷 拍摄体检报告</Label>
+        <Label>
+          📷 体检报告图片
+          <span className="text-xs text-muted-foreground ml-1">
+            （最多 {MAX_IMAGES} 张，已选 {selectedFiles.length} 张）
+          </span>
+        </Label>
         <input
           ref={fileRef}
           type="file"
           accept="image/*"
           capture="environment"
+          multiple
           onChange={handleFileChange}
           className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
         />
-        {scanning && (
-          <p className="text-xs text-muted-foreground mt-1">🤖 AI 正在识别报告中的指标...</p>
-        )}
-        {preview && (
-          <img
-            src={preview}
-            alt="报告预览"
-            className="mt-2 w-full h-40 object-cover rounded-lg border"
-          />
+        {previews.length > 0 && (
+          <div className="flex gap-2 mt-2 overflow-x-auto">
+            {previews.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`报告 ${i + 1}`}
+                className="w-20 h-20 object-cover rounded-lg border flex-shrink-0"
+              />
+            ))}
+          </div>
         )}
       </div>
+
+      {selectedFiles.length > 0 && !ocrDone && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleOcrScan}
+          disabled={scanning}
+        >
+          {scanning ? "🤖 AI 识别中..." : "🤖 AI 识别第一页指标"}
+        </Button>
+      )}
+
+      {ocrDone && (
+        <p className="text-xs text-green-600 text-center">
+          ✓ AI 已识别部分指标，请核对并补充
+        </p>
+      )}
 
       {fields.map((f) => (
         <div key={f.name} className="space-y-1">
           <Label>
             {f.label}
             {values[f.name] && (
-              <span className="text-green-600 text-xs ml-2">✓ AI 已识别</span>
+              <span className="text-green-600 text-xs ml-2">✓ 已识别</span>
             )}
           </Label>
           <Input
@@ -145,7 +188,7 @@ export function ReportForm() {
         <Label>备注</Label>
         <Input name="notes" placeholder="其他说明（可选）" />
       </div>
-      <Button type="submit" className="w-full" disabled={saving || scanning}>
+      <Button type="submit" className="w-full" disabled={saving}>
         {saving ? "保存中..." : "保存体检报告"}
       </Button>
     </form>

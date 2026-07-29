@@ -42,11 +42,16 @@ export function ReportCard({ report }: { report: HealthReport }) {
         )}
       </div>
       {report.reportImageUrl && (
-        <img
-          src={report.reportImageUrl}
-          alt="体检报告"
-          className="w-full h-32 object-cover rounded-lg border"
-        />
+        <div className="flex gap-2 overflow-x-auto">
+          {report.reportImageUrl.split(",").map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`报告 ${i + 1}`}
+              className="w-20 h-20 object-cover rounded-lg border flex-shrink-0"
+            />
+          ))}
+        </div>
       )}
       {hasData ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
