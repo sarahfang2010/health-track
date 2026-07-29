@@ -20,6 +20,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   const [mealType, setMealType] = useState(editEntry?.mealType || "lunch");
   const [saving, setSaving] = useState(false);
   const [estimating, setEstimating] = useState(false);
+  const [gramError, setGramError] = useState("");
   const [aiResult, setAiResult] = useState<{calories:number;protein:number;fat:number;carbs:number;fiber:number;sugar:number} | null>(null);
 
   useEffect(() => {
@@ -64,6 +65,15 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   }
 
   async function handleSave() {
+    setGramError("");
+
+    // Validate grams
+    const gNum = Number(grams) || 0;
+    if (gNum > 11500) {
+      setGramError("请输入合理数字");
+      return;
+    }
+
     setSaving(true);
 
     let nutrition = aiResult;
@@ -127,10 +137,12 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
             <Input
               type="number"
               value={grams}
-              onChange={(e) => setGrams(e.target.value)}
+              onChange={(e) => { setGrams(e.target.value); setGramError(""); }}
               onBlur={autoEstimate}
               placeholder="请输入克数"
+              max={11500}
             />
+            {gramError && <p className="text-xs text-red-500 mt-0.5">{gramError}</p>}
           </div>
           <div className="space-y-1">
             <Label>餐别</Label>
