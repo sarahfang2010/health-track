@@ -44,6 +44,25 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   const gramNum = Number(grams) || 0;
   const factor = gramNum / 100;
 
+  // Auto-estimate when both food name and grams are filled
+  async function autoEstimate() {
+    if (!per100 && !isEditing && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
+      setEstimating(true);
+      try {
+        const res = await fetch("/api/food/estimate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ foodName: foodName.trim(), grams: gramNum }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAiResult(data);
+        }
+      } catch {}
+      setEstimating(false);
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
 
@@ -109,6 +128,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
               type="number"
               value={grams}
               onChange={(e) => setGrams(e.target.value)}
+              onBlur={autoEstimate}
               placeholder="请输入克数"
             />
           </div>
