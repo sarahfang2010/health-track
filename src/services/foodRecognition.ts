@@ -38,7 +38,7 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
           content: [
             {
               type: "text",
-              text: "请识别这张图片中的食物，只返回食物名称（中文），每个食物一行，不要有其他内容。最多列出3个最可能的食物。",
+              text: "请仔细观察图片中的食物。先描述食物特征，然后列出食物名称（中文），每行一个，最多5个。",
             },
             {
               type: "image_url",
@@ -49,7 +49,8 @@ async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
           ],
         },
       ],
-      max_tokens: 200,
+      max_tokens: 400,
+      temperature: 0,
     }),
   });
 
