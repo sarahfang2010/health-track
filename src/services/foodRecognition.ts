@@ -16,7 +16,7 @@ export interface Candidate {
 
 const AI_API_URL = "https://opencode.ai/zen/go/v1/chat/completions";
 const AI_API_KEY = "sk-VEeGua9LQf8sg6lJpB3sEodxeUlNt5ii46Cr8AyO9TRhNSnWwm79SdbOElxsFM5V";
-const AI_MODEL = "mimo-v2.5";
+const AI_MODEL = "minimax-m3";
 
 async function recognizeFoodWithAI(imagePath: string): Promise<string[]> {
   const imageBuffer = await fs.readFile(imagePath);
