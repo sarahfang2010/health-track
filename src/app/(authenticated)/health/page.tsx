@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ReportCard, HealthReport } from "@/components/health/report-card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function HealthPage() {
