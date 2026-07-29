@@ -49,6 +49,19 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
   items.forEach((it,i) => card(s, 1.2+i*3, 2.8, 2.7, 2.2, it.t, it.d, true));
   s.addText('不知道吃的东西有多少热量、是否适合自己身体状况', { x:1.2, y:5.5, fontSize:11, color:GRAY }); }
 
+// ========== S04: PAIN POINTS ==========
+{ const s = pptx.addSlide(); s.background = { fill:LIGHT };
+  title(s, '市场痛点');
+  const items = [
+    { t:'记录太麻烦', d:'手动查热量表效率极低\nAI 拍照一秒完成' },
+    { t:'不知道该吃什么', d:'知道有高血糖\n不知道这盘菜能不能吃' },
+    { t:'体检报告看不懂', d:'拿了报告不知指标含义\n不知怎么调整饮食' },
+    { t:'缺乏个性化', d:'热量 App 千篇一律\n不根据个人健康状况调整' },
+    { t:'中餐识别差', d:'海外竞品西餐为主\n中餐数据匮乏' },
+    { t:'缺 AI 深度', d:'现有产品简单数据库查询\n缺乏真正的 AI 分析能力' }
+  ];
+  items.forEach((it,i) => card(s, 1.2+(i%3)*3, 2.2+Math.floor(i/3)*2, 2.7, 1.6, it.t, it.d)); }
+
 // ========== S04: OVERVIEW ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };
   title(s, '项目概况');
@@ -84,20 +97,7 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
   items.forEach((it,i) => card(s, 1.2+i*3, 2.8, 2.7, 2.2, it.t, it.d, true));
   s.addText('OCR 指标提取  ·  规则引擎 + AI 双通道建议  ·  中医食补 AI', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
 
-// ========== S07: PAIN POINTS ==========
-{ const s = pptx.addSlide(); s.background = { fill:LIGHT };
-  title(s, '市场痛点');
-  const items = [
-    { t:'记录太麻烦', d:'手动查热量表效率极低\nAI 拍照一秒完成' },
-    { t:'不知道该吃什么', d:'知道有高血糖\n不知道这盘菜能不能吃' },
-    { t:'体检报告看不懂', d:'拿了报告不知指标含义\n不知怎么调整饮食' },
-    { t:'缺乏个性化', d:'热量 App 千篇一律\n不根据个人健康状况调整' },
-    { t:'中餐识别差', d:'海外竞品西餐为主\n中餐数据匮乏' },
-    { t:'缺 AI 深度', d:'现有产品简单数据库查询\n缺乏真正的 AI 分析能力' }
-  ];
-  items.forEach((it,i) => card(s, 1.2+(i%3)*3, 2.2+Math.floor(i/3)*2, 2.7, 1.6, it.t, it.d)); }
-
-// ========== S08: COMPETITORS ==========
+// ========== S09: COMPETITORS ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };
   title(s, '竞品分析');
   const items = [
@@ -127,8 +127,8 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
   title(s, '商业模式');
   const items = [
     { t:'初期  ·  免费', d:'积累用户和数据\n验证 PMF' },
-    { t:'成长期  ·  Freemium', d:'免费版每日 5 次 AI\n付费 ¥19/月 无限使用' },
-    { t:'成熟期  ·  B2B', d:'企业健康管理\n¥5-10/人/月' }
+    { t:'成长期  ·  Freemium', d:'免费版每日 5 次 AI\n每月付费可以无限使用' },
+    { t:'成熟期  ·  B2B', d:'企业健康管理\n¥9.9/人/月' }
   ];
   items.forEach((it,i) => card(s, 1.2+i*3, 2.5, 2.7, 2.2, it.t, it.d));
   s.addText('增值服务：营养师咨询平台抽佣 15-20%  ·  健康食品电商引流', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
