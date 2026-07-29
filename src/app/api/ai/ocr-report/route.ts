@@ -15,20 +15,22 @@ export async function POST(req: NextRequest) {
   const file = formData.get("image") as File | null;
   if (!file) return NextResponse.json({ error: "请上传图片" }, { status: 400 });
 
-  // Save file temporarily
+  // Read directly to base64 (no file save needed for AI)
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-  const filename = `${Date.now()}-ocr.jpg`;
+  const base64 = buffer.toString("base64");
+
+  // Determine mime type from original file
+  const mimeType = file.type || "image/jpeg";
+
+  // Save file for URL access later
+  const ext = file.name.split(".").pop() || "jpg";
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   await fs.mkdir(uploadDir, { recursive: true });
-  const filePath = path.join(uploadDir, filename);
-  await fs.writeFile(filePath, buffer);
+  await fs.writeFile(path.join(uploadDir, filename), buffer);
 
-  // Read image as base64
-  const imageBuffer = await fs.readFile(filePath);
-  const base64 = imageBuffer.toString("base64");
-
-  const response = await fetch(AI_API_URL, {
+  const aiResponse = await fetch(AI_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
             },
             {
               type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${base64}` },
+              image_url: { url: `data:${mimeType};base64,${base64}` },
             },
           ],
         },
@@ -74,15 +76,14 @@ export async function POST(req: NextRequest) {
     }),
   });
 
-  if (!response.ok) {
-    console.error("OCR AI error:", response.status);
-    return NextResponse.json({ error: "识别失败" }, { status: 500 });
+  if (!aiResponse.ok) {
+    console.error("OCR AI error:", aiResponse.status);
+    return NextResponse.json({ error: "识别失败，请手动填写" }, { status: 500 });
   }
 
-  const data = await response.json();
+  const data = await aiResponse.json();
   const content = data.choices?.[0]?.message?.content || "";
 
-  // Parse JSON from response
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
@@ -91,5 +92,5 @@ export async function POST(req: NextRequest) {
     }
   } catch {}
 
-  return NextResponse.json({ error: "无法解析报告数据" }, { status: 500 });
+  return NextResponse.json({ error: "无法解析报告数据，请手动填写" }, { status: 500 });
 }
