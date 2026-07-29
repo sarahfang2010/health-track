@@ -22,18 +22,18 @@ export async function POST() {
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
   // Build prompt with text-based report data
-  const promptText = `请作为营养医学顾问，根据以下信息给出专业解读：
+  const promptText = `你是营养医学顾问。请仔细阅读上传的体检报告图片，从中提取所有检测指标的值。
 
-用户信息：${user?.gender === "male" ? "男性" : user?.gender === "female" ? "女性" : "未设置"}，${user?.age ? `${user.age}岁` : "未设置"}，目标：${user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持"}
+用户基本信息：${user?.gender === "male" ? "男性" : user?.gender === "female" ? "女性" : "未知"}，${user?.age ? `${user.age}岁` : "年龄未知"}，目标：${user?.goal === "lose" ? "减重" : user?.goal === "gain" ? "增重" : "保持"}
 
-已有的检测值：血糖 ${report.bloodSugar || "未测"} mmol/L，血压 ${report.bloodPressureSystolic || "?"}/${report.bloodPressureDiastolic || "?"} mmHg，总胆固醇 ${report.totalCholesterol || "未测"} mmol/L，尿酸 ${report.uricAcid || "未测"} μmol/L。
+注意：图片中是体检报告原文，请从图片中直接读取各项指标（血糖、血压、血脂、尿酸等），不要参考文字描述中可能为空的占位符。
 
 请分三部分回答：
-1. 如果图片中有更多指标，请先提取并列出所有检测值
-2. 综合评估健康状况和风险
-3. 给出具体的饮食调整建议
+1. 从图片中提取并列出所有检测指标的名称、数值、单位和参考范围，标注哪些正常、哪些异常
+2. 综合评估健康状况、风险和需要关注的问题
+3. 根据异常指标和用户目标，给出具体可操作的饮食调整建议
 
-用通俗易懂的语言，控制在 400 字以内。`;
+控制在 500 字以内。`;
 
   // Build content array: text prompt + images
   const content: unknown[] = [{ type: "text", text: promptText }];
