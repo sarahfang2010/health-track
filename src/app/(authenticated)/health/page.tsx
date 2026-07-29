@@ -60,7 +60,7 @@ export default function HealthPage() {
               </Button>
             )}
             {aiAnalysis && (
-              <div className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground bg-muted/30 rounded-lg p-4">
+              <div className="text-sm leading-relaxed whitespace-pre-line break-words overflow-hidden text-muted-foreground bg-muted/30 rounded-lg p-4">
                 {aiAnalysis}
                 <button
                   className="text-xs text-primary mt-3 block hover:underline"
