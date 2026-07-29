@@ -43,6 +43,7 @@ export default function HealthPage() {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
+        <Link href="/" className="text-sm text-primary">← 返回</Link>
         <h1 className="text-xl font-semibold">健康档案</h1>
         <Link href="/health/new" className="text-sm text-primary">
           + 新建报告

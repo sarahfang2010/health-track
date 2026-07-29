@@ -21,6 +21,9 @@ export default async function SettingsPage() {
 
   return (
     <>
+      <div className="mb-4">
+        <Link href="/" className="text-sm text-primary">← 返回</Link>
+      </div>
       <h1 className="text-xl font-semibold mb-4">个人设置</h1>
       <SettingsForm user={user} />
       <div className="mt-8 pt-6 border-t flex justify-center pb-4">
