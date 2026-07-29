@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const AI_API_URL = "https://opencode.ai/zen/go/v1/chat/completions";
-const AI_API_KEY = "sk-VEeGua9LQf8sg6lJpB3sEodxeUlNt5ii46Cr8AyO9TRhNSnWwm79SdbOElxsFM5V";
+const AI_API_KEY = process.env.AI_API_KEY || "";
 const AI_MODEL = "minimax-m3";
 
 export async function POST(req: NextRequest) {
