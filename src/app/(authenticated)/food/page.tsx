@@ -11,7 +11,8 @@ import Link from "next/link";
 export default function FoodPage() {
   const [entries, setEntries] = useState<FoodEntry[]>([]);
   const [showManual, setShowManual] = useState(false);
-  const [candidate, setCandidate] = useState<Candidate | undefined>();
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [editingEntry, setEditingEntry] = useState<FoodEntry | null>(null);
 
   const fetchEntries = useCallback(async () => {
@@ -21,22 +22,31 @@ export default function FoodPage() {
 
   useEffect(() => { fetchEntries(); }, [fetchEntries]);
 
-  function handlePhotoConfirm(c: Candidate) {
-    setCandidate(c);
+  const currentCandidate = candidates.length > 0 ? candidates[currentIdx] : undefined;
+  const hasMoreCandidates = currentIdx < candidates.length - 1;
+
+  function handlePhotoConfirm(list: Candidate[]) {
+    setCandidates(list);
+    setCurrentIdx(0);
     setEditingEntry(null);
     setShowManual(false);
   }
 
   function handleSaved() {
-    setCandidate(undefined);
-    setEditingEntry(null);
-    setShowManual(false);
     fetchEntries();
+    if (hasMoreCandidates) {
+      setCurrentIdx(currentIdx + 1);
+    } else {
+      setCandidates([]);
+      setCurrentIdx(0);
+      setEditingEntry(null);
+      setShowManual(false);
+    }
   }
 
   function handleEdit(entry: FoodEntry) {
     setEditingEntry(entry);
-    setCandidate(undefined);
+    setCandidates([]);
     setShowManual(false);
   }
 
@@ -46,18 +56,19 @@ export default function FoodPage() {
   }
 
   function handleCancel() {
-    setCandidate(undefined);
+    setCandidates([]);
+    setCurrentIdx(0);
     setEditingEntry(null);
     setShowManual(false);
   }
 
   function handleManualEntry() {
-    setCandidate(undefined);
+    setCandidates([]);
     setEditingEntry(null);
     setShowManual(true);
   }
 
-  const showForm = showManual || !!candidate || !!editingEntry;
+  const showForm = showManual || !!currentCandidate || !!editingEntry;
 
   return (
     <>
@@ -83,12 +94,19 @@ export default function FoodPage() {
           </>
         )}
 
-        {showManual && !candidate && !editingEntry && (
+        {showManual && !currentCandidate && !editingEntry && (
           <FoodEntryForm onSaved={handleSaved} onCancel={handleCancel} />
         )}
 
-        {candidate && !editingEntry && (
-          <FoodEntryForm prefilled={candidate} onSaved={handleSaved} onCancel={handleCancel} />
+        {currentCandidate && !editingEntry && (
+          <div>
+            {candidates.length > 1 && (
+              <p className="text-xs text-muted-foreground text-center mb-2">
+                已选 {candidates.length} 项 · 正在录入第 {currentIdx + 1} 项：{currentCandidate.name}
+              </p>
+            )}
+            <FoodEntryForm prefilled={currentCandidate} onSaved={handleSaved} onCancel={handleCancel} />
+          </div>
         )}
 
         {editingEntry && (
