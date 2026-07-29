@@ -58,6 +58,10 @@ export default async function DashboardPage() {
   const recommendations = await getRecommendations(session.user.id);
   const topAdvice = recommendations.slice(0, 3);
 
+  const now = new Date();
+  const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+  const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -65,6 +69,7 @@ export default async function DashboardPage() {
           <h1 className="text-xl font-semibold">
             {user?.name ? `${user.name}，你好` : "你好"}
           </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{dateStr}</p>
         </div>
         <GoalSelector
           currentGoal={user?.goal || "maintain"}
