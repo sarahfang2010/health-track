@@ -60,12 +60,15 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
         if (res.ok) {
           const data = await res.json();
           setAiResult(data);
+          return { ok: true };
         } else if (res.status === 400) {
           setFoodError("请输入合理食物");
+          return { ok: false, error: "food" };
         }
       } catch {}
       setEstimating(false);
     }
+    return { ok: true };
   }
 
   async function handleSave() {
@@ -81,8 +84,8 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
 
     // For manual entry without photo: require AI estimation first
     if (!per100 && !isEditing && !aiResult && foodName.trim() && gNum > 0) {
-      await autoEstimate();
-      if (foodError) return;
+      const estResult = await autoEstimate();
+      if (estResult && estResult.ok === false) return;
     }
 
     if (foodError) return;
