@@ -16,6 +16,7 @@ export default async function DashboardPage() {
   if (!session?.user?.id) return null;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user) return null;
 
   // Only show onboarding for new users (no body data set)
   const isNewUser = !user?.age && !user?.height && !user?.weight;
