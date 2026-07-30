@@ -27,7 +27,7 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
 
 // ========== S01: COVER ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };
-  s.addText('健康追踪', { x:1.2, y:1.8, w:8, h:1.5, fontSize:58, color:INK, bold:false, fontFace:'Microsoft YaHei Light' });
+  s.addText('轻舟 · 健康追踪', { x:1.2, y:1.8, w:8, h:1.5, fontSize:58, color:INK, bold:false, fontFace:'Microsoft YaHei Light' });
   s.addText('AI 驱动的饮食健康管理平台\n拍照识别  ·  体检分析  ·  个性化建议', { x:1.2, y:3.5, w:8, fontSize:16, color:GRAY });
   s.addText('商业计划书  ·  2026', { x:1.2, y:5.5, fontSize:11, color:GRAY }); }
 
@@ -133,13 +133,28 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
   items.forEach((it,i) => card(s, 1.2+i*3, 2.5, 2.7, 2.2, it.t, it.d));
   s.addText('增值服务：营养师咨询平台抽佣 15-20%  ·  健康食品电商引流', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
 
+// ========== S10: TEAM ==========
+{ const s = pptx.addSlide(); s.background = { fill:LIGHT };
+  title(s, '团队');
+  const items = [
+    { r:'官网负责人', n:'丁玥文', d:'官网设计制作\n在线 Demo 展示' },
+    { r:'产品负责人', n:'方雅琪', d:'全栈开发 · AI 集成\n产品设计' },
+    { r:'运营支持', n:'王琰若', d:'体质健康自检问卷\n官网嵌入 · 运营辅助' },
+  ];
+  items.forEach((it,i) => {
+    s.addShape(pptx.ShapeType.rect, { x:1.2+i*3, y:2.5, w:2.7, h:3, fill:WHITE, line:{color:BLUE,width:1} });
+    s.addText(it.r, { x:1.2+i*3, y:2.7, w:2.7, fontSize:13, color:BLUE, bold:true, align:'center' });
+    s.addText(it.n, { x:1.2+i*3, y:3.3, w:2.7, fontSize:22, color:INK, align:'center' });
+    s.addText(it.d, { x:1.2+i*3, y:4, w:2.7, fontSize:11, color:GRAY, align:'center' });
+  }); }
+
 // ========== S11: FINANCIAL ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };
   title(s, '财务预测（第一年）');
   const items = [
-    { n:'¥5 万', l:'保守', d:'1 万人  ·  3% 付费' },
-    { n:'¥42 万', l:'中等', d:'5 万人  ·  5% 付费' },
-    { n:'¥269 万', l:'乐观', d:'20 万人  ·  8% 付费' }
+    { n:'¥1.5 万', l:'保守', d:'3000 人  ·  3% 付费' },
+    { n:'¥8.4 万', l:'中等', d:'1 万人  ·  5% 付费' },
+    { n:'¥67 万', l:'乐观', d:'5 万人  ·  8% 付费' }
   ];
   items.forEach((it,i) => {
     s.addShape(pptx.ShapeType.rect, { x:1.2+i*3, y:2, w:2.7, h:2.8, fill:WHITE, line:{color:BLUE,width:1} });
@@ -147,7 +162,7 @@ function heading(s, t) { s.addText(t, { x:1.2, y:1.2, fontSize:28, color:INK, bo
     s.addText(it.l, { x:1.2+i*3, y:3.3, w:2.7, h:0.5, fontSize:16, color:INK, align:'center' });
     s.addText(it.d, { x:1.2+i*3, y:3.8, w:2.7, h:0.5, fontSize:11, color:GRAY, align:'center' });
   });
-  s.addText('年运营成本 ¥4,320 - ¥10,320  ·  AI API + 服务器 + 域名', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
+  s.addText('年运营成本 ¥2,400 - ¥1.6万  ·  AI API + 服务器 + 域名', { x:1.2, y:5.5, fontSize:10, color:GRAY }); }
 
 // ========== S12: RISKS ==========
 { const s = pptx.addSlide(); s.background = { fill:LIGHT };
