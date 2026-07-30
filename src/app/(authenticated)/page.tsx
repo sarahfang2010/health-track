@@ -16,7 +16,10 @@ export default async function DashboardPage() {
   if (!session?.user?.id) return null;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user) return null;
+  if (!user) {
+    const { redirect } = await import("next/navigation");
+    redirect("/api/auth/signout");
+  }
 
   // Only show onboarding for new users (no body data set)
   const isNewUser = !user?.age && !user?.height && !user?.weight;
