@@ -48,7 +48,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
 
   // Auto-estimate when both food name and grams are filled
   async function autoEstimate() {
-    if (!per100 && !isEditing && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
+    if (!per100 && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
       setEstimating(true);
       setFoodError("");
       try {
@@ -93,7 +93,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
     setSaving(true);
 
     let nutrition = aiResult;
-    if (!per100 && !isEditing && foodName && gramNum > 0) {
+    if (!per100 && foodName && gramNum > 0) {
       setEstimating(true);
       try {
         const res = await fetch("/api/food/estimate", {
