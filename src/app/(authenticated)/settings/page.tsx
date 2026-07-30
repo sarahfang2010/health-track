@@ -34,6 +34,12 @@ export default async function SettingsPage() {
           </Button>
         </form>
       </div>
+
+      <div className="mt-2 text-center">
+        <Link href="/donate" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+          觉得不错？
+        </Link>
+      </div>
     </>
   );
 }
