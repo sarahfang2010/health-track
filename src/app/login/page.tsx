@@ -55,6 +55,18 @@ export default function LoginPage() {
                 required
               />
             </div>
+            {isRegister && (
+              <div className="space-y-1">
+                <Label htmlFor="confirmPassword">确认密码</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="再次输入密码"
+                  required
+                />
+              </div>
+            )}
             {error && (
               <p className="text-sm text-red-500 text-center">{error}</p>
             )}

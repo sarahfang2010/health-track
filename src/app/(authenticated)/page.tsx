@@ -10,6 +10,7 @@ import { MacroBars } from "@/components/dashboard/macro-bars";
 import { getRecommendations } from "@/services/recommendationEngine";
 import { calculateDailySummary } from "@/services/summaryCalculator";
 import Link from "next/link";
+import { DashboardRefresher } from "@/components/dashboard/dashboard-refresher";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -17,8 +18,16 @@ export default async function DashboardPage() {
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user) {
-    const { redirect } = await import("next/navigation");
-    redirect("/api/auth/signout");
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-4">
+          <p className="text-3xl">👤</p>
+          <h2 className="text-lg font-semibold">用户不存在</h2>
+          <p className="text-sm text-muted-foreground">账号可能已被删除，请重新注册</p>
+          <a href="/api/auth/signout" className="text-sm text-primary underline">重新登录</a>
+        </div>
+      </div>
+    );
   }
 
   // Only show onboarding for new users (no body data set)
@@ -66,7 +75,7 @@ export default async function DashboardPage() {
   const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
 
   return (
-    <>
+    <DashboardRefresher>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">
@@ -126,6 +135,6 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
-    </>
+    </DashboardRefresher>
   );
 }

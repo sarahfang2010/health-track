@@ -7,13 +7,18 @@ import { signIn } from "./auth";
 export async function register(formData: FormData) {
   const account = formData.get("account") as string;
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
-  if (!account || !password) {
-    return { error: "请填写手机号和密码" };
+  if (!account || !password || !confirmPassword) {
+    return { error: "请填写所有字段" };
   }
 
   if (password.length < 6) {
     return { error: "密码至少6位" };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "两次输入的密码不一致" };
   }
 
   const existing = await prisma.user.findUnique({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 const calorieRates: Record<string, number> = {
   running: 8.0,
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(entry, { status: 201 });
 }
 
@@ -97,6 +99,7 @@ export async function PUT(req: NextRequest) {
     },
   });
 
+  revalidatePath("/");
   return NextResponse.json(entry);
 }
 
@@ -118,5 +121,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   await prisma.exerciseEntry.delete({ where: { id } });
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

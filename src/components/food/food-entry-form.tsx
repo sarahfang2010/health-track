@@ -48,7 +48,7 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
 
   // Auto-estimate when both food name and grams are filled
   async function autoEstimate() {
-    if (!per100 && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
+    if (!per100 && !isEditing && foodName.trim() && gramNum > 0 && !aiResult && !estimating) {
       setEstimating(true);
       setFoodError("");
       try {
@@ -60,15 +60,17 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
         if (res.ok) {
           const data = await res.json();
           setAiResult(data);
-          return { ok: true };
+          setEstimating(false);
+          return { ok: true, data };
         } else if (res.status === 400) {
           setFoodError("请输入合理食物");
+          setEstimating(false);
           return { ok: false, error: "food" };
         }
       } catch {}
       setEstimating(false);
     }
-    return { ok: true };
+    return { ok: true, data: null };
   }
 
   async function handleSave() {
@@ -83,30 +85,22 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
     }
 
     // For manual entry without photo: require AI estimation first
+    let nutrition = aiResult;
     if (!per100 && !isEditing && !aiResult && foodName.trim() && gNum > 0) {
       const estResult = await autoEstimate();
       if (estResult && estResult.ok === false) return;
+      nutrition = estResult?.data ?? null;
     }
 
     if (foodError) return;
 
     setSaving(true);
 
-    let nutrition = aiResult;
-    if (!per100 && foodName && gramNum > 0) {
-      setEstimating(true);
-      try {
-        const res = await fetch("/api/food/estimate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ foodName, grams: gramNum }),
-        });
-        if (res.ok) {
-          nutrition = await res.json();
-          setAiResult(nutrition);
-        }
-      } catch {}
-      setEstimating(false);
+    // For edits with gram changes, recalculate proportionally from original values
+    let editFactor = 1;
+    if (isEditing && editEntry && gramNum > 0) {
+      const origGrams = parseInt(editEntry.portion?.match(/(\d+)/)?.[1] || "100");
+      editFactor = gramNum / (origGrams || 100);
     }
 
     const method = isEditing ? "PUT" : "POST";
@@ -114,12 +108,12 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
       foodName,
       mealType,
       portion: `${gramNum}g`,
-      calories: nutrition ? nutrition.calories : (per100 ? per100.calories * factor : (editEntry?.calories || 0)),
-      protein: nutrition ? nutrition.protein : (per100 ? per100.protein * factor : (editEntry?.protein || 0)),
-      fat: nutrition ? nutrition.fat : (per100 ? per100.fat * factor : (editEntry?.fat || 0)),
-      carbs: nutrition ? nutrition.carbs : (per100 ? per100.carbs * factor : (editEntry?.carbs || 0)),
-      fiber: nutrition ? nutrition.fiber : (per100 ? per100.fiber * factor : (editEntry?.fiber ?? 0)),
-      sugar: nutrition ? nutrition.sugar : (per100 ? per100.sugar * factor : (editEntry?.sugar ?? 0)),
+      calories: nutrition ? nutrition.calories : (per100 ? per100.calories * factor : Math.round((editEntry?.calories || 0) * editFactor)),
+      protein: nutrition ? nutrition.protein : (per100 ? per100.protein * factor : parseFloat(((editEntry?.protein || 0) * editFactor).toFixed(1))),
+      fat: nutrition ? nutrition.fat : (per100 ? per100.fat * factor : parseFloat(((editEntry?.fat || 0) * editFactor).toFixed(1))),
+      carbs: nutrition ? nutrition.carbs : (per100 ? per100.carbs * factor : parseFloat(((editEntry?.carbs || 0) * editFactor).toFixed(1))),
+      fiber: nutrition ? nutrition.fiber : (per100 ? per100.fiber * factor : parseFloat(((editEntry?.fiber ?? 0) * editFactor).toFixed(1))),
+      sugar: nutrition ? nutrition.sugar : (per100 ? per100.sugar * factor : parseFloat(((editEntry?.sugar ?? 0) * editFactor).toFixed(1))),
       source: per100 ? "photo" : "manual",
     };
     if (isEditing) body.id = editEntry!.id;
@@ -134,7 +128,10 @@ export function FoodEntryForm({ prefilled, editEntry, onSaved, onCancel }: Props
   }
 
   const photoCals = per100 ? Math.round(per100.calories * factor) : 0;
-  const displayCals = aiResult?.calories || photoCals || (editEntry?.calories || 0);
+  const editCals = (isEditing && editEntry && gramNum > 0)
+    ? Math.round((editEntry.calories || 0) * (gramNum / (parseInt(editEntry.portion?.match(/(\d+)/)?.[1] || "100") || 1)))
+    : 0;
+  const displayCals = aiResult?.calories || photoCals || editCals || (editEntry?.calories || 0);
 
   return (
     <div className="space-y-4 p-4 border rounded-lg">
