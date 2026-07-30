@@ -17,6 +17,7 @@ export default async function SettingsPage() {
       gender: true,
       height: true,
       weight: true,
+      role: true,
     },
   });
 
@@ -34,6 +35,14 @@ export default async function SettingsPage() {
           </Button>
         </form>
       </div>
+
+      {user?.role === "admin" && (
+        <div className="mt-2 text-center">
+          <Link href="/admin" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            用户管理
+          </Link>
+        </div>
+      )}
 
       <div className="mt-2 text-center">
         <Link href="/donate" className="text-xs text-muted-foreground hover:text-foreground transition-colors">

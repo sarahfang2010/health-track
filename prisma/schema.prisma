@@ -17,6 +17,7 @@ model User {
   height    Float?
   weight    Float?
   goal      String   @default("maintain")
+  role      String   @default("member")
   createdAt DateTime @default(now())
 
   healthReports HealthReport[]
