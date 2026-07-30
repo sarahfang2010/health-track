@@ -28,7 +28,7 @@ export function GoalSelector({ currentGoal, showOnboarding }: Props) {
   const router = useRouter();
 
   useEffect(() => {
-    if (showOnboarding) {
+    if (showOnboarding && !localStorage.getItem("goal-onboarding-dismissed")) {
       setDialogOpen(true);
     }
   }, [showOnboarding]);
@@ -64,7 +64,7 @@ export function GoalSelector({ currentGoal, showOnboarding }: Props) {
         <span className="text-xs text-muted-foreground ml-0.5">▾</span>
       </button>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) localStorage.setItem("goal-onboarding-dismissed", "1"); }}>
         <DialogContent className="max-w-sm bg-white">
           <DialogHeader>
             <DialogTitle>选择你的目标</DialogTitle>
