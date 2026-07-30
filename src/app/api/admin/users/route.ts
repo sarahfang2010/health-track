@@ -28,6 +28,11 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "缺少ID" }, { status: 400 });
   if (id === session.user.id) return NextResponse.json({ error: "不能删除自己" }, { status: 400 });
 
+  const target = await prisma.user.findUnique({ where: { id }, select: { account: true } });
+  if (target?.account === "18616996380") {
+    return NextResponse.json({ error: "创始人不能被删除" }, { status: 403 });
+  }
+
   await prisma.user.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
@@ -43,6 +48,11 @@ export async function PUT(req: NextRequest) {
   const { id, role } = body;
   if (!id) return NextResponse.json({ error: "缺少ID" }, { status: 400 });
   if (id === session.user.id && role !== "admin") return NextResponse.json({ error: "不能降级自己" }, { status: 400 });
+
+  const target = await prisma.user.findUnique({ where: { id }, select: { account: true } });
+  if (target?.account === "18616996380" && role !== "admin") {
+    return NextResponse.json({ error: "创始人不能被降级" }, { status: 403 });
+  }
 
   await prisma.user.update({ where: { id }, data: { role } });
   return NextResponse.json({ success: true });

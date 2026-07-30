@@ -47,6 +47,21 @@ export default function AdminPage() {
     else alert((await res.json()).error || "删除失败");
   }
 
+  async function backupData() {
+    const res = await fetch("/api/admin/backup", { method: "POST" });
+    if (res.ok) {
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `healthtrack_backup_${new Date().toISOString().slice(0, 10)}.sql`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      alert("备份失败");
+    }
+  }
+
   if (loading) return <p className="text-center text-muted-foreground py-20">加载中...</p>;
   if (error) return <p className="text-center text-muted-foreground py-20">{error}</p>;
 
@@ -85,6 +100,18 @@ export default function AdminPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-6 pt-4 border-t">
+        <button
+          className="w-full text-sm py-2 rounded border hover:bg-muted transition-colors"
+          onClick={backupData}
+        >
+          📥 备份用户数据
+        </button>
+        <p className="text-xs text-muted-foreground text-center mt-2">
+          每天凌晨 3:00 自动备份，保留最近 7 份
+        </p>
       </div>
     </>
   );
